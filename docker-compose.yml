@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  utsc_coin_miner:
+    build:
+      context: ./miner
+    container_name: utsc_coin_miner
+    ports:
+      - '80:80'
+    volumes:
+      - ./miner/core:/app/core

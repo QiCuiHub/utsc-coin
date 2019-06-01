@@ -1,0 +1,18 @@
+{
+  "name": "utsc_coin_miner",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "^4.17.1",
+    "lowdb": "^1.0.0",
+    "cors": "^2.8.5",
+    "helmet": "^3.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  },
+  "scripts": {
+    "test": "nodemon -L core/server.js",
+    "server": "node core/server.js"
+  }
+}
