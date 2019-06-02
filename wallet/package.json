@@ -1,16 +1,14 @@
 {
-  "name": "utsc_coin_miner",
+  "name": "utsc_coin_wallet",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "^4.17.1",
     "lowdb": "^1.0.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"
   },
   "scripts": {
-    "test": "nodemon -L core/server.js",
-    "server": "node core/server.js"
+    "wallet": "nodemon -L core/server.js"
   }
 }

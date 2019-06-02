@@ -1,7 +1,7 @@
 const express = require('express');
 const lowdb = require('lowdb');
 const FileAsync = require('lowdb/adapters/FileAsync');
-const {Block, Transaction} = require('./structures.js');
+const {Blockchain, Block, Transaction} = require('./structures.js');
 const crypto = require('crypto');
 
 const app = express();
@@ -13,6 +13,29 @@ const walletDB = new FileAsync('core/wallet/keys.json');
 const blockchain = lowdb(blockchainDB);
 const utxo = lowdb(utxoDB);
 const wallet = lowdb(walletDB);
+
+
+app.post('/transact', 
+	async (req, res) => {
+		let input = req.input;
+		let output = req.output;
+		
+		console.log(input, output);
+	}
+);
+
+app.get('/get_wallet', 
+	async (req, res) => {
+		let kp = crypto.createECDH('secp256k1');
+		kp.generateKeys();
+	
+		let pri = kp.getPrivateKey('hex');
+		let pub = kp.getPublicKey('hex');
+
+		res.send({privateKey: pri, publicKey: pub});
+	}
+);
+
 
 app.get('/init',
 	async (req, res) => {	
@@ -29,12 +52,12 @@ app.get('/init',
 		// save to wallet
 		wl.defaults({0 : {privateKey : pri, publicKey: pub}})
 			.assign({0 : {privateKey : pri, publicKey: pub}})
-			.write()
+			.write();
 
 		// create genesis block transaction
-		let utxo_in = [];
-		let utxo_out = [[pub, 1000]];
-		let transaction = new Transaction(utxo_in, utxo_out); 	
+		let utxoIN = [];
+		let utxoOUT = [[pub, 1000]];
+		let transaction = new Transaction(utxoIN, utxoOUT); 	
 
 		// create genesis block
 		let txList = [transaction];
@@ -42,10 +65,12 @@ app.get('/init',
 		let block = new Block(txList, prevHash);
 
 		// add it to the block chain
+		let chain = new Blockchain();
+		chain.add(block);
 
-
-		//await db.defaults({ 0 : [], user: {}, count: 0 })
-  	//	.write()
+		let bc = await blockchain;
+		bc.assign(chain)
+			.write();
 			
 		res.sendStatus(200);
 

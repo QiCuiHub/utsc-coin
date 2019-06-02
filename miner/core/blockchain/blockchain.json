@@ -1,2 +1,20 @@
 {
+  "blocks": [
+    {
+      "transactions": [
+        {
+          "input": [],
+          "output": [
+            [
+              "04c025a63b96716753a9a32710960e80c878864f4e060a658c6dca250ecc62189bf317ace65bf7a3d7178a58b397e1911c3e6ae613ab5b349f8d1c60b3b4c00957",
+              1000
+            ]
+          ]
+        }
+      ],
+      "prevHash": "000000000000000000000000000000000000000000000000000000000000000",
+      "txMerkleHash": "7cb589afe073e7212e0247c3add836b49818e099428cf325d591285e311f75dd",
+      "blockHash": "48bdfda469bcef1ce2f90bc5fdcad274c0b1c8c465362c030934ca39f4bad28e"
+    }
+  ]
 }

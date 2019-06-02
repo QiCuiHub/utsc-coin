@@ -4,29 +4,18 @@ class Transaction {
 	constructor(input, output) {
 		this.input  = input;
   	this.output = output;
-		this.id     = this.getID();
 	}
 
 	getID() {
+		// sha256 hash
+		let hash = crypto.createHash('sha256');
+
 		// id is the hash of all inputs and outputs in order
-		let input_str = this.input
-			.reduce((acc, curr) => {return acc + curr}, "");
+		this.input.forEach((curr) => {hash.update(curr, 'utf-8')});
+		this.output.forEach((curr) => {hash.update(curr[0] + curr[1], 'utf-8')});
 
-		let output_str = this.output
-			.reduce((acc, curr) => {return acc + curr[0] + curr[1]}, "");
-
-		// use sha256
-		let hash = crypto
-			.createHash('sha256')
-			.update(input_str + output_str, 'utf8')
-			.digest('hex');
-
-		return hash;
-	}
-
-	repr() {
-		console.log(this.output);
-		return [input : this.input, output: this.output];
+		// return in hex
+		return hash.digest('hex');
 	}
 }
 
@@ -35,24 +24,56 @@ class Block {
   	this.transactions = txList;
 		this.prevHash     = prevHash;
 		this.txMerkleHash = this.getMerkleRoot();
-		this.blockHash    = "test";
+		this.blockHash    = crypto
+			.createHash('sha256')
+			.update(this.prevHash + this.txMerkleHash, 'utf-8')
+			.digest('hex');
 	}
 
 	getMerkleRoot() {
-		let txids = this.transactions
-			.map((curr) => {return curr.getID()});
+		// get transaction ids
+		let txids = this.transactions.map((curr) => {return curr.getID()})
+		let nodes = []
 
-		return txids;
+		// make sure array is even
+		let leftover = txids.length % 2 === 0 || txids.length === 1 ? 
+			null : txids.pop();
+
+		// hash txid pairs in order until 1 left
+		while (txids.length > 1){
+			for (i = 0; i < txids.length; i += 2){
+				let hash = crypto
+					.createHash('sha256')
+					.update(txids[i] + txids[i + 1], 'utf-8')
+					.digest('hex');
+
+				nodes.push(hash);
+			}
+
+			txids = nodes;
+			nodes = []
+		} 
+		
+		// hash back if array is odd
+		if (leftover) return crypto
+			.createHash('sha256')
+			.update(leftover + txids[0], 'utf-8')
+			.digest('hex');
+		else return txids[0]; 
 	}
 }
 
-class BlockChain {
+class Blockchain {
 	constructor(blockchain){
-		this.blockchain = this.parse(blockchain);
+		this.blocks = this.parse(blockchain);
 	}
 
 	parse(blockchainJSON){
+		return [];
+	}
 
+	add(block){
+		this.blocks.push(block);
 	}
 }
 
