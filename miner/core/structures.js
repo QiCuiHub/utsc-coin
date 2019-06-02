@@ -4,6 +4,7 @@ class Transaction {
 	constructor(input, output) {
 		this.input  = input;
   	this.output = output;
+		this.signature = '';
 	}
 
 	getID() {
@@ -74,6 +75,14 @@ class Blockchain {
 
 	add(block){
 		this.blocks.push(block);
+	}
+
+	verifyTX(transaction){
+
+	}
+
+	verifyBlock(block){
+
 	}
 }
 
