@@ -17,7 +17,6 @@ class Transaction {
 		// id is the hash of all transaction data
 		this.input.forEach((curr) => {hash.update(curr + '.', 'utf-8')});
 		this.output.forEach((curr) => {hash.update(curr[0] + curr[1] + '.', 'utf-8')});
-		hash.update(this.signature + '.', 'utf-8');
 		hash.update(this.publicKey + '.', 'utf-8');
 		hash.update(this.type + '.', 'utf-8');
 
@@ -109,7 +108,7 @@ class Blockchain {
 	}
 
 	verifyTX(transaction){
-		
+		// coinbase txid must be unique	
 	}
 
 	verifyBlock(block){
@@ -119,6 +118,8 @@ class Blockchain {
 	getUTXOs(publicKey){
 		// get all utxos if publickey is not specified
 		// else get specific utxos
+		
+		//let utxos = 		
 
 	}
 }
