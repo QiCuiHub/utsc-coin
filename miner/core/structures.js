@@ -1,22 +1,32 @@
 const crypto = require('crypto');
 
 class Transaction {
-	constructor(input, output) {
+	constructor(input, output, signature, publicKey, type, txid) {
 		this.input  = input;
   	this.output = output;
-		this.signature = '';
+		this.signature = signature;
+		this.publicKey = publicKey;
+		this.type = type;
+		this.txid = txid;
 	}
 
 	getID() {
 		// sha256 hash
 		let hash = crypto.createHash('sha256');
 
-		// id is the hash of all inputs and outputs in order
-		this.input.forEach((curr) => {hash.update(curr, 'utf-8')});
-		this.output.forEach((curr) => {hash.update(curr[0] + curr[1], 'utf-8')});
+		// id is the hash of all transaction data
+		this.input.forEach((curr) => {hash.update(curr + '.', 'utf-8')});
+		this.output.forEach((curr) => {hash.update(curr[0] + curr[1] + '.', 'utf-8')});
+		hash.update(this.signature + '.', 'utf-8');
+		hash.update(this.publicKey + '.', 'utf-8');
+		hash.update(this.type + '.', 'utf-8');
 
 		// return in hex
 		return hash.digest('hex');
+	}
+
+	verify(){
+		return this.txid === getID()
 	}
 }
 
@@ -24,7 +34,7 @@ class Block {
 	constructor(txList, prevHash) {
   	this.transactions = txList;
 		this.prevHash     = prevHash;
-		this.txMerkleHash = this.getMerkleRoot();
+		this.txRootHash = this.getMerkleRoot();
 		this.blockHash    = crypto
 			.createHash('sha256')
 			.update(this.prevHash + this.txMerkleHash, 'utf-8')

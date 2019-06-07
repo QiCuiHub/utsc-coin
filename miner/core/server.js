@@ -36,7 +36,6 @@ app.get('/get_wallet',
 	}
 );
 
-
 app.get('/init',
 	async (req, res) => {	
 
@@ -47,31 +46,42 @@ app.get('/init',
 		let pri = kp.getPrivateKey('hex');
 		let pub = kp.getPublicKey('hex');
 
-		// save to wallet
-		wl.defaults({0 : {privateKey : pri, publicKey: pub}})
-			.assign({0 : {privateKey : pri, publicKey: pub}})
+		// reset wallet and save to wallet
+		wl.defaults({keys : {}})
+			.assign({keys : {}})
+			.get('keys')
+			.assign({[pub] : pri})
 			.write();
 
 		// create coinbase transaction
 		let utxoIN = [];
 		let utxoOUT = [[pub, 1000]];
-		let transaction = new Transaction(utxoIN, utxoOUT); 	
+		let signature = '';
+		let publicKey = '';
+		let type = 'coinbase';
+		let transaction = new Transaction(utxoIN, utxoOUT, signature, publicKey, type); 	
 
 		// create genesis block
 		let txList = [transaction];
-		let prevHash = "000000000000000000000000000000000000000000000000000000000000000";
+		let prevHash = '';
 		let block = new Block(txList, prevHash);
 
 		// add it to the block chain
 		let chain = new Blockchain();
 		chain.add(block);
 
+		// keep track of utxos
+		ut.defaults({utxo : {}})
+			.assign({utxo : {}})
+			.get('utxo')
+			.assign({[transaction.getID()] : transaction.output})
+			.write();
+
 		// save blockchain
 		bc.assign(chain)
 			.write();
 			
 		res.sendStatus(200);
-
 
 	}
 );

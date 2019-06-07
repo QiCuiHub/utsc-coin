@@ -6,15 +6,18 @@
           "input": [],
           "output": [
             [
-              "04c025a63b96716753a9a32710960e80c878864f4e060a658c6dca250ecc62189bf317ace65bf7a3d7178a58b397e1911c3e6ae613ab5b349f8d1c60b3b4c00957",
+              "04c7568ceb03fbea72db03587017a66aaa9fdcb803aa902c6f84ca695297e1d11053b5c50bb5dd2179cc8cf0eee1415892eaa6785813e0d43fa825806bd4031015",
               1000
             ]
-          ]
+          ],
+          "signature": "",
+          "publicKey": "",
+          "type": "coinbase"
         }
       ],
-      "prevHash": "000000000000000000000000000000000000000000000000000000000000000",
-      "txMerkleHash": "7cb589afe073e7212e0247c3add836b49818e099428cf325d591285e311f75dd",
-      "blockHash": "48bdfda469bcef1ce2f90bc5fdcad274c0b1c8c465362c030934ca39f4bad28e"
+      "prevHash": "",
+      "txRootHash": "73ec67e3f7e3f1ce23be1d0bde3534eb47e77cf5f63b9c4c4c06ee9cfc02cf48",
+      "blockHash": "eb045d78d273107348b0300c01d29b7552d622abbc6faf81b3ec55359aa9950c"
     }
   ]
 }

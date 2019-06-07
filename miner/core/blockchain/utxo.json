@@ -1,2 +1,10 @@
 {
+  "utxo": {
+    "73ec67e3f7e3f1ce23be1d0bde3534eb47e77cf5f63b9c4c4c06ee9cfc02cf48": [
+      [
+        "04c7568ceb03fbea72db03587017a66aaa9fdcb803aa902c6f84ca695297e1d11053b5c50bb5dd2179cc8cf0eee1415892eaa6785813e0d43fa825806bd4031015",
+        1000
+      ]
+    ]
+  }
 }
