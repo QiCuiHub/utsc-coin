@@ -6,18 +6,18 @@
           "input": [],
           "output": [
             [
-              "04c7568ceb03fbea72db03587017a66aaa9fdcb803aa902c6f84ca695297e1d11053b5c50bb5dd2179cc8cf0eee1415892eaa6785813e0d43fa825806bd4031015",
+              "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEfy7sPzLuBhLLmsu42Vb/YjsvwIAG+lypbsqdfROMKXgPjuU6fjkraOPNTTeTlut7Kbhm5N+yW1CLpq9/2GRwNQ==",
               1000
             ]
           ],
-          "signature": "",
-          "publicKey": "",
+          "signature": "UTSC COIN",
+          "publicKey": "IS THE BEST",
           "type": "coinbase"
         }
       ],
-      "prevHash": "",
-      "txRootHash": "73ec67e3f7e3f1ce23be1d0bde3534eb47e77cf5f63b9c4c4c06ee9cfc02cf48",
-      "blockHash": "eb045d78d273107348b0300c01d29b7552d622abbc6faf81b3ec55359aa9950c"
+      "prevHash": "0",
+      "txRootHash": "fab1d72f490a773cda18f4737e2c89e71e92aa060844739f41e52c073f843bc1",
+      "blockHash": "29ab8127aa26b1642e276e2bff148c0dd9840ef7c2b2eb3f445da050703e8396"
     }
   ]
 }

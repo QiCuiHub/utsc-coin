@@ -25,17 +25,31 @@ class Transaction {
 		return hash.digest('hex');
 	}
 
-	verify(){
-		return this.txid === getID()
-	}
 }
 
 class Block {
-	constructor(txList, prevHash) {
-  	this.transactions = txList;
+	constructor(txList, prevHash, txRootHash, blockHash) {
+  	this.transactions = this.parse(txList);
 		this.prevHash     = prevHash;
-		this.txRootHash = this.getMerkleRoot();
-		this.blockHash    = crypto
+		this.txRootHash 	= txRootHash;
+		this.blockHash    = blockHash;
+	}
+
+	parse(txList){
+		return txList.map((curr) => {
+			return new Transaction(
+				curr.input,
+				curr.output,
+				curr.signature,
+				curr.publicKey,
+				curr.type,
+				curr.txid
+			);
+		});
+	}
+
+	getBlockHash(){
+		return crypto
 			.createHash('sha256')
 			.update(this.prevHash + this.txMerkleHash, 'utf-8')
 			.digest('hex');
@@ -80,7 +94,14 @@ class Blockchain {
 	}
 
 	parse(blockchainJSON){
-		return [];
+		return blockchainJSON.map((curr) => {
+			return new Block(
+				curr.transactions,
+				curr.prevHash,
+				curr.txRootHash,
+				curr.blockHash
+			);
+		});
 	}
 
 	add(block){
@@ -88,14 +109,19 @@ class Blockchain {
 	}
 
 	verifyTX(transaction){
-
+		
 	}
 
 	verifyBlock(block){
 
 	}
-}
 
+	getUTXOs(publicKey){
+		// get all utxos if publickey is not specified
+		// else get specific utxos
+
+	}
+}
 
 module.exports = {
 	Transaction : Transaction,
