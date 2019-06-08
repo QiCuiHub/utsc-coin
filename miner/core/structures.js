@@ -1,12 +1,12 @@
 const crypto = require('crypto');
 
 class Transaction {
-	constructor(input, output, signature, publicKey, type, txid) {
+	constructor(input, output, publicKey, type, signature, txid) {
 		this.input  = input;
   	this.output = output;
-		this.signature = signature;
 		this.publicKey = publicKey;
 		this.type = type;
+		this.signature = signature;
 		this.txid = txid;
 	}
 
@@ -39,10 +39,10 @@ class Block {
 			return new Transaction(
 				curr.input,
 				curr.output,
-				curr.signature,
 				curr.publicKey,
 				curr.type,
-				curr.txid
+				curr.signature,
+				curr.txid,
 			);
 		});
 	}
