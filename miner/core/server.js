@@ -25,9 +25,11 @@ app.use(express.json());
 app.post('/transact', 
   async (req, res) => {
     let transaction = new Transaction(req.body);
-    console.log(miner.verifyTX(transaction));
-
-    res.sendStatus(200); 
+    if (miner.verifyTX(transaction)){
+      return res.send({tx: 'success'});
+    }else{
+      return res.send({tx: 'invalid'});
+    }
   }
 );
 

@@ -23,7 +23,7 @@ class Miner {
           // input utxo must be unspent
           curr.txid in this.utxo &&
         
-          // input utxo must belong to the pub key
+          // input utxo address must pay to the publicKey
           this.utxo[curr.txid][curr.idx].address === tx.publicKey
         )
       })
@@ -39,13 +39,18 @@ class Miner {
         return acc;
       }, 0)
 
-    ) 
+    )
+ 
     return true;
     else return false;
 	}
 
   verifyBlock(block){
 
+  }
+
+  stageTX(tx){
+    this.txPool.push(tx);
   }
 }
 
