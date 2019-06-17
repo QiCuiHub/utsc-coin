@@ -2,13 +2,13 @@ const crypto = require('crypto');
 const ops = require('./operations.js');
 
 class Transaction {
-	constructor(input, output, publicKey, type, signature, txid) {
-		this.input  = input;
-		this.output = output;
-		this.publicKey = publicKey;
-		this.type = type;
-		this.signature = signature;
-		this.txid = txid;
+	constructor(txJSON) {
+		this.input  = txJSON.input;
+		this.output = txJSON.output;
+		this.publicKey = txJSON.publicKey;
+		this.type = txJSON.type;
+		this.signature = txJSON.signature;
+		this.txid = txJSON.txid;
 	}
 
 	getID() {
@@ -28,23 +28,16 @@ class Transaction {
 }
 
 class Block {
-	constructor(txList, prevHash, txRootHash, blockHash) {
-		this.transactions = this.parse(txList);
-		this.prevHash     = prevHash;
-		this.txRootHash		= txRootHash;
-		this.blockHash    = blockHash;
+	constructor(blockJSON) {
+		this.transactions = this.parse(blockJSON.transactions);
+		this.prevHash     = blockJSON.prevHash;
+		this.txRootHash		= blockJSON.txRootHash;
+		this.blockHash    = blockJSON.blockHash;
 	}
 
 	parse(txList){
 		return txList.map((curr) => {
-			return new Transaction(
-				curr.input,
-				curr.output,
-				curr.publicKey,
-				curr.type,
-				curr.signature,
-				curr.txid,
-			);
+			return new Transaction(curr);
 		});
 	}
 
@@ -90,18 +83,13 @@ class Block {
 
 class Blockchain {
 	constructor(blockchain){
-		this.blocks = this.parse(blockchain);
+		this.blocks = this.parse(blockchain.blocks);
 		this.utxos = this.getUTXOs();
 	}
 
 	parse(blockchainJSON){
 		return blockchainJSON.map((curr) => {
-			return new Block(
-				curr.transactions,
-				curr.prevHash,
-				curr.txRootHash,
-				curr.blockHash
-			);
+			return new Block(curr);
 		});
 	}
 

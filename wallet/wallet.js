@@ -18,7 +18,7 @@ let pub = Object.keys(keys)[0];
 let pri = keys[pub];
 
 // get utxos that belong to the public key
-let blockchain = new Blockchain(bl.get('blocks').value());
+let blockchain = new Blockchain(bl.value());
 let input_tx = blockchain.blocks[0].transactions[0];
 let input = [{txid: input_tx.getID(), idx: 0}];
 
@@ -30,18 +30,22 @@ let output = [{address: address, value: 50}];
 let publickey = pub;
 let type = 'payment';
 
-let transaction = new Transaction(
-	input,
-	output,
-	publickey,
-  type
-);
+let transaction = new Transaction({
+	input     : input,
+	output    : output,
+	publicKey : publickey,
+  type      : type
+});
 
 transaction.txid = transaction.getID();
 transaction.signature = ops.sign(transaction.txid, pri);
 
-console.log('\nsignature output', transaction.signature)
+main = async () => {
+	try {
+		await ax.post('http://0.0.0.0/transact', transaction);
+	} catch(e) {
+		console.log(e.response.status);
+	}
+}
 
-console.log(blockchain.verifyTX(transaction));
-//console.log(transaction);
-
+main();

@@ -3,25 +3,31 @@ const lowdb = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const {Blockchain, Block, Transaction} = require('./structures.js');
 const ops = require('./operations.js');
-const crypto = require('crypto');
+const {Miner} = require('./miner.js');
 
-const app = express();
-
+// load state from files
 const blockchainDB = new FileSync('core/blockchain/blockchain.json');
 const utxoDB = new FileSync('core/blockchain/utxo.json');
 const walletDB = new FileSync('core/wallet/keys.json');
-
 const bc = lowdb(blockchainDB);
 const ut = lowdb(utxoDB);
 const wl = lowdb(walletDB);
 
+// app
+const app = express();
+const blockchain = new Blockchain(bc.value());
+const miner = new Miner(blockchain);
 
+// middleware
+app.use(express.json());
+
+// endpoints
 app.post('/transact', 
   async (req, res) => {
-    let input = req.input;
-    let output = req.output;
-  
-    console.log(input, output);
+    let transaction = new Transaction(req.body);
+    console.log(miner.verifyTX(transaction));
+
+    res.sendStatus(200); 
   }
 );
 

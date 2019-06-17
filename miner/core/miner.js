@@ -1,3 +1,5 @@
+const ops = require('./operations.js');
+
 class Miner {
   constructor(blockchain){
     this.txPool = [];
@@ -5,24 +7,41 @@ class Miner {
     this.utxo = blockchain.getUTXOs();
   }
 
-	verifyTX(transaction){
-		// txid must equal getID
-		if (transaction.txid != transaction.getID()) 
-			return false
+	verifyTX(tx){
+    /* verify payment type transactions */
 
-		// payment
-		// signature must be verified
-		if (!ops.verify(transaction.txid, transaction.signature, transaction.publicKey))
-			return false
+		if (
+		  // txid must equal getID
+      tx.txid === tx.getID()
 
-		// input utxos must be unspent
-			transaction.input.every
-		// input utxos must belong to the pub key
-		// output utxo value must be equal to input utxo value
+      // signature must be verified
+      && ops.verify(tx.txid, tx.signature, tx.publicKey)
 
-		// coinbase
-		// txid must be unique
-		// value is _ coins
+      // input utxo
+      && tx.input.every((curr) => {
+        return ( 
+          // input utxo must be unspent
+          curr.txid in this.utxo &&
+        
+          // input utxo must belong to the pub key
+          this.utxo[curr.txid][curr.idx].address === tx.publicKey
+        )
+      })
+
+      // output utxo value must be equal to input utxo value
+      && tx.input.reduce((acc, curr) => {
+        acc += this.utxo[curr.txid][curr.idx].value;
+        return acc;
+      }, 0)
+
+      === tx.output.reduce((acc, curr) => {
+        acc += curr.value;
+        return acc;
+      }, 0)
+
+    ) 
+    return true;
+    else return false;
 	}
 
   verifyBlock(block){
