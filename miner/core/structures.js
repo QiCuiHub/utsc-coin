@@ -4,7 +4,7 @@ const ops = require('./operations.js');
 class Transaction {
 	constructor(input, output, publicKey, type, signature, txid) {
 		this.input  = input;
-  	this.output = output;
+		this.output = output;
 		this.publicKey = publicKey;
 		this.type = type;
 		this.signature = signature;
@@ -29,9 +29,9 @@ class Transaction {
 
 class Block {
 	constructor(txList, prevHash, txRootHash, blockHash) {
-  	this.transactions = this.parse(txList);
+		this.transactions = this.parse(txList);
 		this.prevHash     = prevHash;
-		this.txRootHash 	= txRootHash;
+		this.txRootHash		= txRootHash;
 		this.blockHash    = blockHash;
 	}
 
@@ -111,13 +111,17 @@ class Blockchain {
 
 	verifyTX(transaction){
 		// txid must equal getID
-		if (transaction.txid != transaction.getID()) return false
+		if (transaction.txid != transaction.getID()) 
+			return false
 
 		// payment
-		// signature must match pub key
-		return ops.verify(transaction.txid, transaction.signature, transaction.publicKey);
+		// signature must be verified
+		if (!ops.verify(transaction.txid, transaction.signature, transaction.publicKey))
+			return false
 
 		// input utxos must be unspent
+			transaction.input.every
+
 		// input utxos must belong to the pub key
 		// output utxo value must be equal to input utxo value
 
