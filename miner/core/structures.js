@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const ops = require('./operations.js');
 
 class Transaction {
 	constructor(input, output, publicKey, type, signature, txid) {
@@ -16,7 +17,7 @@ class Transaction {
 
 		// id is the hash of all transaction data
 		this.input.forEach((curr) => {hash.update(curr + '.', 'utf-8')});
-		this.output.forEach((curr) => {hash.update(curr[0] + curr[1] + '.', 'utf-8')});
+		this.output.forEach((curr) => {hash.update(curr.address + curr.value + '.', 'utf-8')});
 		hash.update(this.publicKey + '.', 'utf-8');
 		hash.update(this.type + '.', 'utf-8');
 
@@ -90,6 +91,7 @@ class Block {
 class Blockchain {
 	constructor(blockchain){
 		this.blocks = this.parse(blockchain);
+		this.utxos = this.getUTXOs();
 	}
 
 	parse(blockchainJSON){
@@ -108,19 +110,34 @@ class Blockchain {
 	}
 
 	verifyTX(transaction){
-		// coinbase txid must be unique	
+		// txid must equal getID
+		if (transaction.txid != transaction.getID()) return false
+
+		// payment
+		// signature must match pub key
+		return ops.verify(transaction.txid, transaction.signature, transaction.publicKey);
+
+		// input utxos must be unspent
+		// input utxos must belong to the pub key
+		// output utxo value must be equal to input utxo value
+
+		// coinbase
+		// txid must be unique
+		// value is _ coins
 	}
 
 	verifyBlock(block){
 
 	}
 
-	getUTXOs(publicKey){
-		// get all utxos if publickey is not specified
-		// else get specific utxos
-		
-		//let utxos = 		
-
+	getUTXOs(){
+		return this.blocks.reduce((acc, block) => {
+			block.transactions.forEach((tx) => {
+				acc[tx.getID()] = tx.output;
+			});
+			
+			return acc;
+		}, {});
 	}
 }
 

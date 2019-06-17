@@ -49,7 +49,7 @@ app.get('/init',
 
 		// create coinbase transaction
 		let utxoIN = [];
-		let utxoOUT = [[pub, 1000]];
+		let utxoOUT = [{address: pub, value: 1000}];
 		let signature = 'UTSC COIN'; // coinbase contains random data
 		let pubKey = 'IS THE BEST';
 		let type = 'coinbase';

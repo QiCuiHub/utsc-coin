@@ -20,7 +20,7 @@ getKeyPair = () => {
 }
 
 sign = (content, privateKey) => {
-	let pri = crypto.createPrivateKey({
+  let pri = crypto.createPrivateKey({
 		key    : Buffer.from(privateKey, 'hex'),
 		format : 'der',
 		type   : 'sec1'
@@ -31,7 +31,20 @@ sign = (content, privateKey) => {
 		.sign(pri, 'hex');
 }
 
+verify = (content, signature, publicKey) => {
+  let pub = crypto.createPublicKey({
+    key    : Buffer.from(publicKey, 'hex'), 
+    format : 'der',
+    type   : 'spki'
+  });
+
+  return crypto.createVerify('SHA256')
+    .update(content, 'utf-8')
+    .verify(pub, signature, 'hex');
+}
+
 module.exports = {
 	getKeyPair : getKeyPair,
-	sign       : sign
+	sign       : sign,
+  verify     : verify
 }
