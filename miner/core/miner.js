@@ -7,10 +7,10 @@ class Miner {
     this.utxo = blockchain.getUTXOs();
   }
 
-	verifyTX(tx){
+  verifyTX(tx){
     /* verify payment type transactions */
 
-		// txid must equal getID
+    // txid must equal getID
     let checkID = tx.txid === tx.getID();
 
     // signature must be verified
@@ -31,8 +31,8 @@ class Miner {
       return acc;
     }, 0);
 
-		return checkID && checkSig && checkUtxo && inputVal === outputVal;
-	}
+    return checkID && checkSig && checkUtxo && inputVal === outputVal;
+  }
 
   verifyBlock(block){
 
