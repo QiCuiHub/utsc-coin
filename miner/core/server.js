@@ -25,9 +25,21 @@ app.use(express.json());
 app.post('/transact', 
   async (req, res) => {
     let transaction = new Transaction(req.body);
+
     if (miner.verifyTX(transaction)){
       miner.stageTX(transaction);
-      console.log(miner.utxo);
+
+      if (miner.txPool.length === 1){
+        // mine a block
+        let block = new Block({
+          prevHash      : blockchain.getLastHash(),
+          transactions  : miner.txPool
+        })
+
+        block.txRootHash = block.getMerkleRoot();
+        block.blockHash = block.getBlockHash();
+      }      
+
       return res.send({tx: 'success'});
     }else{
       return res.send({tx: 'invalid'});

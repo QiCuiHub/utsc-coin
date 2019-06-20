@@ -4,7 +4,7 @@ class Miner {
   constructor(blockchain){
     this.txPool = [];
     this.blockchain = blockchain;
-    this.utxo = blockchain.getUTXOs();
+    this.utxos = blockchain.getUTXOs();
   }
 
   verifyTX(tx){
@@ -18,12 +18,14 @@ class Miner {
 
     // input utxo address must exist and pay to the publicKey
     let checkUtxo = tx.input.every((curr) => {
-      return this.utxo[curr.txid + '.' + curr.idx].address === tx.publicKey
+      let utxo = this.utxos[curr.txid + '.' + curr.idx];
+      return utxo ? utxo.address === tx.publicKey : false;
     });
 
     // input utxo value must be equal to output utxo value
-    let inputVal = tx.input.reduce((acc, curr) => {
-      acc += this.utxo[curr.txid + '.' + curr.idx].value;
+    let inputVal = tx.input.reduce((acc, curr) => { 
+      let utxo = this.utxos[curr.txid + '.' + curr.idx];
+      acc += utxo ? utxo.value : -1;
       return acc;
     }, 0); 
     let outputVal = tx.output.reduce((acc, curr) => {
@@ -31,6 +33,7 @@ class Miner {
       return acc;
     }, 0);
 
+    //console.log(checkID, checkSig, checkUtxo);
     return checkID && checkSig && checkUtxo && inputVal === outputVal;
   }
 
@@ -43,12 +46,12 @@ class Miner {
     
     // remove the input utxos from the utxo pool
     tx.input.forEach((curr) => {
-       delete this.utxo[curr.txid + '.' + curr.idx];
+       delete this.utxos[curr.txid + '.' + curr.idx];
     });
 
     // add the output utxos to the utxo pool
     tx.output.forEach((curr, idx) => {
-      this.utxo[tx.txid + '.' + idx] = curr;
+      this.utxos[tx.txid + '.' + idx] = curr;
     });
   }
 }
