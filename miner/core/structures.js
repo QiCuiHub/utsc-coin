@@ -100,7 +100,9 @@ class Blockchain {
 	getUTXOs(){
 		return this.blocks.reduce((acc, block) => {
 			block.transactions.forEach((tx) => {
-				acc[tx.getID()] = tx.output;
+				tx.output.forEach((curr, idx) => {
+					acc[tx.txid + '.' + idx] = curr
+				});
 			});
 			
 			return acc;

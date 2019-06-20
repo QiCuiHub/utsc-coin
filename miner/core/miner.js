@@ -10,39 +10,28 @@ class Miner {
 	verifyTX(tx){
     /* verify payment type transactions */
 
-		if (
-		  // txid must equal getID
-      tx.txid === tx.getID()
+		// txid must equal getID
+    let checkID = tx.txid === tx.getID();
 
-      // signature must be verified
-      && ops.verify(tx.txid, tx.signature, tx.publicKey)
+    // signature must be verified
+    let checkSig = ops.verify(tx.txid, tx.signature, tx.publicKey);
 
-      // input utxo
-      && tx.input.every((curr) => {
-        return ( 
-          // input utxo must be unspent
-          curr.txid in this.utxo &&
-        
-          // input utxo address must pay to the publicKey
-          this.utxo[curr.txid][curr.idx].address === tx.publicKey
-        )
-      })
+    // input utxo address must exist and pay to the publicKey
+    let checkUtxo = tx.input.every((curr) => {
+      return this.utxo[curr.txid + '.' + curr.idx].address === tx.publicKey
+    });
 
-      // output utxo value must be equal to input utxo value
-      && tx.input.reduce((acc, curr) => {
-        acc += this.utxo[curr.txid][curr.idx].value;
-        return acc;
-      }, 0)
+    // input utxo value must be equal to output utxo value
+    let inputVal = tx.input.reduce((acc, curr) => {
+      acc += this.utxo[curr.txid + '.' + curr.idx].value;
+      return acc;
+    }, 0); 
+    let outputVal = tx.output.reduce((acc, curr) => {
+      acc += curr.value;
+      return acc;
+    }, 0);
 
-      === tx.output.reduce((acc, curr) => {
-        acc += curr.value;
-        return acc;
-      }, 0)
-
-    )
- 
-    return true;
-    else return false;
+		return checkID && checkSig && checkUtxo && inputVal === outputVal;
 	}
 
   verifyBlock(block){
@@ -51,6 +40,16 @@ class Miner {
 
   stageTX(tx){
     this.txPool.push(tx);
+    
+    // remove the input utxos from the utxo pool
+    tx.input.forEach((curr) => {
+       delete this.utxo[curr.txid + '.' + curr.idx];
+    });
+
+    // add the output utxos to the utxo pool
+    tx.output.forEach((curr, idx) => {
+      this.utxo[tx.txid + '.' + idx] = curr;
+    });
   }
 }
 

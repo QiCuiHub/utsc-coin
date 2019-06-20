@@ -26,6 +26,8 @@ app.post('/transact',
   async (req, res) => {
     let transaction = new Transaction(req.body);
     if (miner.verifyTX(transaction)){
+      miner.stageTX(transaction);
+      console.log(miner.utxo);
       return res.send({tx: 'success'});
     }else{
       return res.send({tx: 'invalid'});
