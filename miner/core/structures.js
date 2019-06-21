@@ -112,6 +112,10 @@ class Blockchain {
   getLastHash(){
     return this.blocks[this.blocks.length - 1].blockHash;
   }
+
+  getHeight(){
+    return this.blocks.length;
+  }
 }
 
 module.exports = {
