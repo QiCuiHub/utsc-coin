@@ -47,12 +47,15 @@ app.post('/transact',
   }
 );
 
-app.post('/register', 
+app.get('/register', 
   async (req, res) => {
     // register the ip into list of peers    
+    let ip = req.connection.remoteAddress;
+    miner.peers.add(ip);
+    console.log(miner.peers);
 
     // send back a copy of the blockchain and a list of peers
-    req.send({blockchain: blockchain, peers: miner.peers});
+    res.send({blockchain: blockchain, peers: miner.peers});
   }
 );
 
@@ -124,4 +127,4 @@ app.get('/clear',
 );
 
 
-app.listen(80);
+app.listen(8000);

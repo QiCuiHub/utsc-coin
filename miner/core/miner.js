@@ -1,11 +1,19 @@
 const ops = require('./operations.js');
+const ax = require('axios');
 
 class Miner {
   constructor(blockchain){
     this.txPool = [];
     this.blockchain = blockchain;
     this.utxos = blockchain.getUTXOs();
-    this.peers = [];
+    this.peers = new Set();
+
+    // contact seed server and get blockchain height
+    //let height = axios.post('http://miner1:8000');
+    // if stored height is the same, use stored blockchain
+
+    // else download missing blocks
+
   }
 
   verifyTX(tx){
