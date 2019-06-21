@@ -5,6 +5,7 @@ class Miner {
     this.txPool = [];
     this.blockchain = blockchain;
     this.utxos = blockchain.getUTXOs();
+    this.peers = [];
   }
 
   verifyTX(tx){
@@ -25,7 +26,7 @@ class Miner {
     // input utxo value must be equal to output utxo value
     let inputVal = tx.input.reduce((acc, curr) => { 
       let utxo = this.utxos[curr.txid + '.' + curr.idx];
-      acc += utxo ? utxo.value : -1;
+      acc += utxo ? utxo.value : 0;
       return acc;
     }, 0); 
     let outputVal = tx.output.reduce((acc, curr) => {

@@ -47,6 +47,15 @@ app.post('/transact',
   }
 );
 
+app.post('/register', 
+  async (req, res) => {
+    // register the ip into list of peers    
+
+    // send back a copy of the blockchain and a list of peers
+    req.send({blockchain: blockchain, peers: miner.peers});
+  }
+);
+
 app.get('/get_wallet', 
   async (req, res) => {
     let kp = ops.getKeyPair();
