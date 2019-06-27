@@ -1,15 +1,26 @@
+const lowdb = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const {Blockchain, Block, Transaction} = require('./structures.js');
 const ops = require('./operations.js');
 const ax = require('axios');
 
-class Miner {
-  constructor(blockchain){
-    this.txPool = [];
-    this.blockchain = blockchain;
-    this.utxos = blockchain.getUTXOs();
-    this.peers = new Set();
 
+class Miner {
+  constructor(bcPath, utxoPath, walletPath){
+    // first load any state from files
+    this.bcDB = lowdb(new FileSync(bcPath));
+    this.utDB = lowdb(new FileSync(utxoPath));
+    this.wlDB = lowdb(new FileSync(walletPath));
+
+    this.txPool = [];
+    this.blockchain = new Blockchain(this.bcDB.value());
+    this.utxos = this.blockchain.getUTXOs();
+    this.peers = new Set();
+  }
+
+  async update(){
     // contact seed server and get blockchain height
-    //let height = axios.post('http://miner1:8000');
+    let height = await axios.post('http://localhost:8000');
     // if stored height is the same, use stored blockchain
 
     // else download missing blocks

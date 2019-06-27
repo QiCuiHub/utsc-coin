@@ -88,9 +88,10 @@ class Blockchain {
   }
 
   parse(blockchainJSON){
-    return blockchainJSON.map((curr) => {
+    if (blockchainJSON) return blockchainJSON.map((curr) => {
       return new Block(curr);
     });
+    else return [];
   }
 
   add(block){

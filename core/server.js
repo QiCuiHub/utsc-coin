@@ -6,17 +6,20 @@ const ops = require('./operations.js');
 const {Miner} = require('./miner.js');
 
 // load state from files
-const blockchainDB = new FileSync('core/blockchain/blockchain.json');
-const utxoDB = new FileSync('core/blockchain/utxo.json');
-const walletDB = new FileSync('core/wallet/keys.json');
+const blockchainDB = new FileSync('./blockchain/blockchain.json');
+const utxoDB = new FileSync('./blockchain/utxo.json');
+const walletDB = new FileSync('./wallet/keys.json');
 const bc = lowdb(blockchainDB);
 const ut = lowdb(utxoDB);
 const wl = lowdb(walletDB);
 
 // app
 const app = express();
-const blockchain = new Blockchain(bc.value());
-const miner = new Miner(blockchain);
+const miner = new Miner(
+  './blockchain/blockchain.json',
+  './blockchain/utxo.json',
+  './wallet/keys.json'
+);
 
 // middleware
 app.use(express.json());
@@ -32,7 +35,7 @@ app.post('/transact',
       if (miner.txPool.length === 1){
         // mine a block
         let block = new Block({
-          prevHash      : blockchain.getLastHash(),
+          prevHash      : miner.blockchain.getLastHash(),
           transactions  : miner.txPool
         })
 
@@ -55,7 +58,7 @@ app.get('/register',
     console.log(miner.peers);
 
     // send back a copy of the blockchain and a list of peers
-    res.send({blockchain: blockchain, peers: miner.peers});
+    res.send({blockchain: miner.blockchain, peers: miner.peers});
   }
 );
 
@@ -121,10 +124,8 @@ app.get('/clear',
   async (req, res) => { 
       
     res.sendStatus(200);
-
-
   }
 );
 
 
-app.listen(8000);
+app.listen(process.env.MINER_PORT);
