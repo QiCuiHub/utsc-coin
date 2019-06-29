@@ -34,11 +34,11 @@ swarm.on('connection', (socket, details) => {
           // request for the difference in blocks
           let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
           socket.write(JSON.stringify(output));
+
+        // receive the difference in blocks
         }else if (body.action === 'sendBlocks'){
-
-
+          console.log(data.toString());
         }
-
       })
       .on('close', () => {
         connections.delete(socket);
@@ -51,13 +51,15 @@ swarm.on('connection', (socket, details) => {
   // new incoming node connections
   else {
     
-    // listen for replys
+    // listen for replys from node
     socket.on('data', (data) => {
         let body = JSON.parse(data.toString());
 
         // node requests for download
         if (body.action === 'requestBlocks'){
-          console.log(body.height);         
+          let blocks = miner.blockchain.blocks.slice(body.height);
+          let output = {action: 'sendBlocks', blocks: blocks};
+          socket.write(JSON.stringify(output));
         }
 
     });
