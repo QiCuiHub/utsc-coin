@@ -43,7 +43,8 @@ class Miner {
       let utxo = this.utxos[curr.txid + '.' + curr.idx];
       acc += utxo ? utxo.value : 0;
       return acc;
-    }, 0); 
+    }, 0);
+ 
     let outputVal = tx.output.reduce((acc, curr) => {
       acc += curr.value;
       return acc;
