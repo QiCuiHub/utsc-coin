@@ -17,9 +17,6 @@ class Miner {
   }
 
   async update(){
-    // contact seed server and get blockchain height
-    // if stored height is the same, use stored blockchain
-    // else download missing blocks
 
   }
 
@@ -55,7 +52,19 @@ class Miner {
   }
 
   verifyBlock(block){
+    // first transaction is a coinbase transactionin
 
+    // coinbase txid cannot be same as previous coinbase txid
+    
+    // no transaction doublespend
+
+    // merkle root matches
+
+    // prevhash matches
+
+    // blockhash matches
+
+    return false;
   }
 
   stageTX(tx){

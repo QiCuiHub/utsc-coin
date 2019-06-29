@@ -31,14 +31,18 @@ swarm.on('connection', (socket, details) => {
 
         // if node height is greater than stored height
         if (body.action === 'hello' && body.height > miner.blockchain.getHeight()){
+
           // request for the difference in blocks
           let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
           socket.write(JSON.stringify(output));
 
-        // receive the difference in blocks
+        // receive the difference in blocks, verify and add
         }else if (body.action === 'sendBlocks'){
-          console.log(data.toString());
+          body.blocks.forEach((curr) => {
+            if (miner.verifyBlock(curr)) miner.blockchain.add(curr);
+          });
         }
+
       })
       .on('close', () => {
         connections.delete(socket);
