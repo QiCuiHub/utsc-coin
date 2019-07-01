@@ -111,7 +111,9 @@ class Blockchain {
   }
 
   getLastHash(){
-    return this.blocks[this.blocks.length - 1].blockHash;
+    let block = this.blocks[this.blocks.length];
+    if (block) return block.blockhash;
+    else return '0';
   }
 
   getHeight(){

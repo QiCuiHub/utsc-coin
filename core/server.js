@@ -1,5 +1,6 @@
 const hyperswarm = require('hyperswarm');
 const {Miner} = require('./miner.js');
+const {Block} = require('./structures');
 const crypto = require('crypto');
 
 const swarm = hyperswarm();
@@ -39,7 +40,8 @@ swarm.on('connection', (socket, details) => {
         // receive the difference in blocks, verify and add
         }else if (body.action === 'sendBlocks'){
           body.blocks.forEach((curr) => {
-            if (miner.verifyBlock(curr)) miner.blockchain.add(curr);
+            let block = new Block(curr);
+            if (miner.verifyBlock(block)) miner.blockchain.add(block);
           });
         }
 

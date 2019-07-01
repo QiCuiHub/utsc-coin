@@ -16,10 +16,6 @@ class Miner {
     this.utxos = this.blockchain.getUTXOs();
   }
 
-  async update(){
-
-  }
-
   verifyTX(tx){
     /* verify payment type transactions */
 
@@ -47,24 +43,34 @@ class Miner {
       return acc;
     }, 0);
 
-    //console.log(checkID, checkSig, checkUtxo);
     return checkID && checkSig && checkUtxo && inputVal === outputVal;
   }
 
   verifyBlock(block){
     // first transaction is a coinbase transactionin
+    let checkType = block.transactions[0].type === 'coinbase';
 
     // coinbase txid cannot be same as previous coinbase txid
-    
-    // no transaction doublespend
+    let checkUniq = this.blockchain.blocks.every((curr) => {
+      return curr.transactions[0].txid !== block.transactions[0].txid;
+    });
+
+    // no transaction doublespend and valid
+    let checkTx = false;
 
     // merkle root matches
+    let checkRoot = block.txRootHash === block.getMerkleRoot();
 
     // prevhash matches
+    let checkPrev = block.prevHash === this.blockchain.getLastHash();
 
     // blockhash matches
+    let checkHash = block.blockHash === block.getBlockHash();
 
-    return false;
+    console.log(checkType, checkUniq, checkRoot, checkPrev, checkHash);
+
+    return checkType && checkUniq && checkTx 
+      && checkRoot && checkPrev && checkHash;
   }
 
   stageTX(tx){
@@ -80,6 +86,22 @@ class Miner {
       this.utxos[tx.txid + '.' + idx] = curr;
     });
   }
+
+  addBlock(block){
+
+  }
+}
+
+class ProofOfAuthorityMiner extends Miner{
+
+}
+
+class ProofOfWorkMiner extends Miner{
+
+}
+
+class ProofOfStakeMiner extends Miner{
+
 }
 
 module.exports = {
