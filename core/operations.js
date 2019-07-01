@@ -32,15 +32,25 @@ sign = (content, privateKey) => {
 }
 
 verify = (content, signature, publicKey) => {
-  let pub = crypto.createPublicKey({
-    key    : Buffer.from(publicKey, 'hex'), 
-    format : 'der',
-    type   : 'spki'
-  });
+  try {
+
+    let pub = crypto.createPublicKey({
+      key    : Buffer.from(publicKey, 'hex'), 
+      format : 'der',
+      type   : 'spki'
+    });
 
   return crypto.createVerify('SHA256')
     .update(content, 'utf-8')
     .verify(pub, signature, 'hex');
+
+  }catch(err) {
+
+    if (err.code === 'ERR_OSSL_ASN1_HEADER_TOO_LONG')
+      return false;
+    else throw err;
+
+  }
 }
 
 module.exports = {
