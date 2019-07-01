@@ -101,8 +101,14 @@ class Blockchain {
   getUTXOs(){
     return this.blocks.reduce((acc, block) => {
       block.transactions.forEach((tx) => {
+        // add the outputs to the list of utxos
         tx.output.forEach((curr, idx) => {
           acc[tx.txid + '.' + idx] = curr
+        });
+
+        // remove the inputs from the list of utxos
+        tx.input.forEach((curr, idx) => {
+          delete acc[curr.txid + '.' + idx];
         });
       });
       
