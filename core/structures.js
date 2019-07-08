@@ -99,6 +99,8 @@ class Blockchain {
   }
 
   getUTXOs(){
+    /* replay transactions in the blockchain */
+    
     return this.blocks.reduce((acc, block) => {
       block.transactions.forEach((tx) => {
         // add the outputs to the list of utxos

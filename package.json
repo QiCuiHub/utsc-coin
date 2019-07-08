@@ -3,12 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "hyperswarm": "^2.0.3",
+    "hyperswarm": "^2.0.4",
     "lowdb": "^1.0.0",
     "axios": "^0.19.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"
+  },
+  "nodemonConfig": {
+    "ignore": ["wallet/*"]
   },
   "scripts": {
     "test": "nodemon -L core/server.js",

@@ -15,7 +15,7 @@ class Miner {
     this.numTx = 0;
     this.blockchain = new Blockchain(this.bcDB.value());
 
-    this.utxos = this.blockchain.getUTXOs();
+    this.blockUtxos = this.blockchain.getUTXOs();
     this.stageUtxos = {};
     this.spentUtxos = {};
   }
@@ -31,13 +31,22 @@ class Miner {
 
     // input utxo address must exist and pay to the publicKey
     let checkUtxo = tx.input.every((curr) => {
-      let utxo = utxos[curr.txid + '.' + curr.idx];
-      return utxo ? utxo.address === tx.publicKey : false;
+      let id = curr.txid + '.' + curr.idx;
+
+      // cannot be in spent utxos
+      if (id in this.spentUtxos) return false;
+
+      // must exist and pay to the publicKey
+      else {
+        let utxo = this.blockUtxos[id] || this.stageUtxos[id];
+        return utxo ? utxo.address == tx.publicKey : false;
+      }
     });
 
     // input utxo value must be equal to output utxo value
-    let inputVal = tx.input.reduce((acc, curr) => { 
-      let utxo = utxos[curr.txid + '.' + curr.idx];
+    let inputVal = tx.input.reduce((acc, curr) => {
+      let id = curr.txid + '.' + curr.idx;
+      let utxo = this.blockUtxos[id] || this.stageUtxos[id];
       acc += utxo ? utxo.value : 0;
       return acc;
     }, 0);
@@ -47,6 +56,7 @@ class Miner {
       return acc;
     }, 0);
 
+    console.log('tx', checkID, checkSig, checkUtxo, inputVal, outputVal);
     return checkID && checkSig && checkUtxo && inputVal === outputVal;
   }
 
@@ -95,7 +105,7 @@ class Miner {
     // blockhash matches
     let checkHash = block.blockHash === block.getBlockHash();
 
-    console.log(checkType, checkUniq, checkTx, checkRoot, checkPrev, checkHash);
+    console.log('block', checkType, checkUniq, checkTx, checkRoot, checkPrev, checkHash);
     return checkType && checkUniq && checkTx 
       && checkRoot && checkPrev && checkHash;
   }

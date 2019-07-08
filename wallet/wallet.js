@@ -1,16 +1,22 @@
-const ax = require('axios');
 const lowdb = require('lowdb');
 const crypto = require('crypto');
-const ops = require('../miner/core/operations.js');
+const hyperswarm = require('hyperswarm');
+const ops = require('../core/operations.js');
 const FileSync = require('lowdb/adapters/FileSync');
-const {Transaction, Block, Blockchain} = require('../miner/core/structures.js');
+const {Transaction, Block, Blockchain} = require('../core/structures.js');
 
-const walletDB = new FileSync('../miner/core/wallet/keys.json');
-const blockchainDB = new FileSync('../miner/core/blockchain/blockchain.json');
+const walletDB = new FileSync('./keys.json');
+const blockchainDB = new FileSync('../blockchain/blockchain.json');
 const wl = lowdb(walletDB);
 const bl = lowdb(blockchainDB);
 
-const minerHost = '0.0.0.0';
+const swarm = hyperswarm();
+const connections = new Set();
+const peerWait = 1;
+
+const topic = crypto.createHash('sha256')
+  .update('utsc-miner-network')
+  .digest();
 
 // get wallet keys
 let keys = wl.get('keys').value();
@@ -40,13 +46,38 @@ let transaction = new Transaction({
 transaction.txid = transaction.getID();
 transaction.signature = ops.sign(transaction.txid, pri);
 
-main = async () => {
-	try {
-		let result = await ax.post('http://0.0.0.0/transact', transaction);
-		console.log(result.data);
-	} catch(e) {
-		console.log(e.response.status);
-	}
-}
+swarm.join(topic, {
+  lookup   : true,
+  announce : true
+});
 
-main();
+let numConn = 0;
+
+// spend n seconds to connect to other peers
+console.log('Connecting to peers...');
+let connectStart = process.hrtime();
+
+swarm.on('connection', (socket, details) => {
+  if (details.client === true){
+    let diff = process.hrtime(connectStart)[0];
+
+    if (diff < peerWait) {
+      numConn += 1;
+      connections.add(socket);
+    }
+  }
+});
+
+// after n seconds communicate with peers
+setTimeout(() => {
+  console.log('Found ' + numConn + ' peers');
+
+  connections.forEach((socket) => {
+    let out = {action: 'test', transaction: transaction};
+    socket.write(JSON.stringify(out));
+    socket.destroy();
+  });
+
+  swarm.leave(topic);
+  process.exit(0);
+}, peerWait * 1000 + 100);
