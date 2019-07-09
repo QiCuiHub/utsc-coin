@@ -1,6 +1,6 @@
 {
   "name": "utsc_coin_wallet",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "lowdb": "^1.0.0",
