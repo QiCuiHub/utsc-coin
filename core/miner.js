@@ -11,7 +11,7 @@ class Miner {
     this.utDB = lowdb(new FileSync(utxoPath));
     this.wlDB = lowdb(new FileSync(walletPath));
 
-    this.txPool = {};
+    this.txPool = new Map();
     this.numTx = 0;
     this.blockchain = new Blockchain(this.bcDB.value());
 
@@ -70,24 +70,15 @@ class Miner {
     });
 
     // no transaction doublespend and valid
-    let tempPool = {};
     let stageTemp = {};
     let spentTemp = {};
 
+    // replay tx, skipping coinbase
     let checkTx = block.transactions.every((tx, idx) => {
-      // skip coinbase transaction
-      if (idx === 0) {
-        this.stageTX(tx, tempPool, stageTemp, spentTemp);
+      if (idx === 0 || this.verifyTX(tx, stageTemp, spentTemp)) {
+        this.stageTX(tx, stageTemp, spentTemp, true);
         return true;
-      }
-
-      // replay block transactions
-      if (this.verifyTX(tx, stageTemp, spentTemp)){
-        this.stageTX(tx, tempPool, stageTemp, spentTemp);
-        return true;
-      }
-
-      return false;
+      } else return false;
     });
 
     // merkle root matches
@@ -104,8 +95,9 @@ class Miner {
       && checkRoot && checkPrev && checkHash;
   }
 
-  stageTX(tx, txPool = this.txPool, stageUtxos = this.stageUtxos, spentUtxos = this.spentUtxos){
-    txPool[tx.txid + '.' + txPool.length] = tx;
+  stageTX(tx, stageUtxos = this.stageUtxos, spentUtxos = this.spentUtxos, dryRun = false){
+    // add to tx pool
+    if (!dryRun) this.txPool.set(tx.txid, tx);
 
     // add utxo to spent utxos
     tx.input.forEach((curr) => {
@@ -119,22 +111,54 @@ class Miner {
   }
 
   addBlock(block){
+    // add block to blockchain
+    this.blockchain.add(block);
 
+    // remove transactions from staged transactions and update blockutxo
+    block.transactions.forEach((tx, idx) => {
+      // remove from pool
+      this.txPool.delete(tx.txid);
+
+      // inputs
+      tx.input.forEach((curr) => {
+        // remove input from spent utxos and dlete from blockutxo
+        let id = curr.txid + '.' + curr.idx;
+        delete this.spentUtxo[id];
+        delete this.blockUtxo[id];
+      });
+
+      // outputs
+      tx.output.forEach((curr, idx) => {
+        // remove from stage utxos and add to blockutxo
+        let id = tx.txid + '.' + idx;
+        delete this.stageUtxos[id];
+        this.blockUtxos[id] = curr;
+      });
+    });
   }
 }
 
 class ProofOfAuthorityMiner extends Miner{
+  mine() {
 
+  }
 }
 
 class ProofOfWorkMiner extends Miner{
+  mine() {
 
+  }
 }
 
 class ProofOfStakeMiner extends Miner{
+  miner() {
 
+  }
 }
 
 module.exports = {
-  Miner : Miner
+  Miner                 : Miner,
+  ProofOfAuthorityMiner : ProofOfAuthorityMiner,
+  ProofOfWorkMiner      : ProofOfWorkMiner,
+  ProofOfStakeMiner     : ProofOfStakeMiner
 }

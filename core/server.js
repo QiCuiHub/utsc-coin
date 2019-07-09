@@ -1,5 +1,5 @@
 const hyperswarm = require('hyperswarm');
-const {Miner} = require('./miner.js');
+const {ProofOfAuthorityMiner} = require('./miner.js');
 const {Block, Transaction} = require('./structures');
 const crypto = require('crypto');
 
@@ -10,7 +10,7 @@ const topic = crypto.createHash('sha256')
   .update('utsc-miner-network')
   .digest();
 
-const miner = new Miner(
+const miner = new ProofOfAuthorityMiner(
   './blockchain/blockchain.json',
   './blockchain/utxo.json',
   './wallet/keys.json'
@@ -41,7 +41,7 @@ swarm.on('connection', (socket, details) => {
         case 'sendBlocks': 
           body.blocks.forEach((curr) => {
             let block = new Block(curr);
-            if (miner.verifyBlock(block)) miner.blockchain.add(block);
+            if (miner.verifyBlock(block)) miner.addBlock(block);
           });
           break;
         
@@ -85,7 +85,7 @@ swarm.on('connection', (socket, details) => {
       }
     });
     
-    // send the height of stored blockchain to the node
+    // send the height of stored blockchain to new incoming node
     let output = {action: 'hello', height: miner.blockchain.getHeight()};
     socket.write(JSON.stringify(output));
   }
