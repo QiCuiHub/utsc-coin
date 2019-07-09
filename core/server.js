@@ -74,7 +74,7 @@ swarm.on('connection', (socket, details) => {
           break;
 
         // test
-        case 'test':
+        case 'transact':
           let transaction = new Transaction(body.transaction);
           if (miner.verifyTX(transaction)) miner.stageTX(transaction);
           break;

@@ -73,7 +73,7 @@ setTimeout(() => {
   console.log('Found ' + numConn + ' peers');
 
   connections.forEach((socket) => {
-    let out = {action: 'test', transaction: transaction};
+    let out = {action: 'transact', transaction: transaction};
     socket.write(JSON.stringify(out));
     socket.destroy();
   });
