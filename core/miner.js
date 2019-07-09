@@ -70,30 +70,24 @@ class Miner {
     });
 
     // no transaction doublespend and valid
-    let temp = this.blockchain.getUTXOs();
+    let tempPool = {};
+    let stageTemp = {};
+    let spentTemp = {};
 
-    let checkTx = block.transactions.every((curr, idx) => {
+    let checkTx = block.transactions.every((tx, idx) => {
       // skip coinbase transaction
-      if (idx === 0) return true;
-
-      // if transaction is already inside of pool, tx is valid
-      if (curr.txid in this.txPool) return true;
-
-      // if transaction is not inside pool, verify and update temp 
-      else if (this.verifyTX(curr, temp)){
-        // remove the input utxos from the utxo pool
-        tx.input.forEach((curr) => {
-           delete temp[curr.txid + '.' + curr.idx];
-        });
-
-        // add the output utxos to the utxo pool
-        tx.output.forEach((curr, idx) => {
-          temp[tx.txid + '.' + idx] = curr;
-        }); 
+      if (idx === 0) {
+        this.stageTX(tx, tempPool, stageTemp, spentTemp);
+        return true;
       }
 
-      else return false;
+      // replay block transactions
+      if (this.verifyTX(tx, stageTemp, spentTemp)){
+        this.stageTX(tx, tempPool, stageTemp, spentTemp);
+        return true;
+      }
 
+      return false;
     });
 
     // merkle root matches
@@ -122,8 +116,6 @@ class Miner {
     tx.output.forEach((curr, idx) => {
       stageUtxos[tx.txid + '.' + idx] = curr;
     });
-
-    //console.log(this.spentUtxos, this.stageUtxos);
   }
 
   addBlock(block){
