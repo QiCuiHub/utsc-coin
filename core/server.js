@@ -32,7 +32,7 @@ swarm.on('connection', (socket, details) => {
       switch (body.action){
         // if other node height is greater than stored height request for difference
         case 'hello':
-          if (body.height < miner.blockchain.getHeight()) return;
+          if (body.height < miner.blockchain.getHeight()) break;
           let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
           socket.write(JSON.stringify(output));
           break;
@@ -76,7 +76,7 @@ swarm.on('connection', (socket, details) => {
         // test
         case 'test':
           let transaction = new Transaction(body.transaction);
-          console.log(miner.verifyTX(transaction));
+          if (miner.verifyTX(transaction)) miner.stageTX(transaction);
           break;
 
         // error

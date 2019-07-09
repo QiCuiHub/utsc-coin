@@ -20,7 +20,7 @@ class Miner {
     this.spentUtxos = {};
   }
 
-  verifyTX(tx, utxos = this.utxos){
+  verifyTX(tx, stageUtxos = this.stageUtxos, spentUtxos = this.spentUtxos){
     /* verify payment type transactions */
 
     // txid must equal getID
@@ -34,11 +34,11 @@ class Miner {
       let id = curr.txid + '.' + curr.idx;
 
       // cannot be in spent utxos
-      if (id in this.spentUtxos) return false;
+      if (id in spentUtxos) return false;
 
       // must exist and pay to the publicKey
       else {
-        let utxo = this.blockUtxos[id] || this.stageUtxos[id];
+        let utxo = this.blockUtxos[id] || stageUtxos[id];
         return utxo ? utxo.address == tx.publicKey : false;
       }
     });
@@ -46,7 +46,7 @@ class Miner {
     // input utxo value must be equal to output utxo value
     let inputVal = tx.input.reduce((acc, curr) => {
       let id = curr.txid + '.' + curr.idx;
-      let utxo = this.blockUtxos[id] || this.stageUtxos[id];
+      let utxo = this.blockUtxos[id] || stageUtxos[id];
       acc += utxo ? utxo.value : 0;
       return acc;
     }, 0);
@@ -110,20 +110,20 @@ class Miner {
       && checkRoot && checkPrev && checkHash;
   }
 
-  stageTX(tx){
-    this.txPool[tx.txid + '.' + this.numTx] = tx;
-    
-    // remove the input utxos from the utxo pool
+  stageTX(tx, txPool = this.txPool, stageUtxos = this.stageUtxos, spentUtxos = this.spentUtxos){
+    txPool[tx.txid + '.' + txPool.length] = tx;
+
+    // add utxo to spent utxos
     tx.input.forEach((curr) => {
-       delete this.utxos[curr.txid + '.' + curr.idx];
+      spentUtxos[curr.txid + '.' + curr.idx] = '';
     });
 
-    // add the output utxos to the utxo pool
+    // add the output utxos to the staged utxos
     tx.output.forEach((curr, idx) => {
-      this.utxos[tx.txid + '.' + idx] = curr;
+      stageUtxos[tx.txid + '.' + idx] = curr;
     });
 
-    this.numTx += 1;
+    //console.log(this.spentUtxos, this.stageUtxos);
   }
 
   addBlock(block){
