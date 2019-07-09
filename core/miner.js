@@ -12,7 +12,6 @@ class Miner {
     this.wlDB = lowdb(new FileSync(walletPath));
 
     this.txPool = new Map();
-    this.numTx = 0;
     this.blockchain = new Blockchain(this.bcDB.value());
 
     this.blockUtxos = this.blockchain.getUTXOs();
