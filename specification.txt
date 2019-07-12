@@ -1,0 +1,5 @@
+10 transactions per block
+target of 1 block every 5 minutes
+wait 1 second to connect to peers
+max of 50 miner to miner connections per node
+unlimited wallet connections
