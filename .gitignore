@@ -64,3 +64,6 @@ typings/
 *.swp
 *.swo
 *.swn
+
+# package lock
+package-lock.json

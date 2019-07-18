@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  ucm_master:
+    build:
+      context: ./master
+    container_name: ucm_master
+    network_mode: "host"
+    ports:
+      - '8000:8000'
+    environment:
+      - MINER_PORT=8000
+    volumes:
+      - ./master/core:/app/core
+      - ./master/blockchain:/app/blockchain
+      - ./master/wallet:/app/wallet
+
+  ucm_1:
+    build:
+      context: ./master
+    container_name: ucm_1
+    network_mode: "host"
+    ports:
+      - '8001:8001'
+    environment:
+      - MINER_PORT=8001
+    depends_on:
+      - 'ucm_master'
+    volumes:
+      - ./master/core:/app/core
+      - ./miner1/blockchain:/app/blockchain
+      - ./miner1/wallet:/app/wallet
+
+#  ucm_2:
+#    build:
+#      context: ./master
+#    container_name: ucm_2
+#    network_mode: "host"
+#    ports:
+#      - '8002:8002'
+#    environment:
+#      - MINER_PORT=8002
+#    depends_on:
+#      - 'ucm_master'
+#    volumes:
+#      - ./master/core:/app/core
+#      - ./miner2/blockchain:/app/blockchain
+#      - ./miner2/wallet:/app/wallet
+#
+#  ucm_3:
+#    build:
+#      context: ./master
+#    container_name: ucm_3
+#    network_mode: "host"
+#    ports:
+#      - '8003:8003'
+#    environment:
+#      - MINER_PORT=8003
+#    depends_on:
+#      - 'ucm_master'
+#    volumes:
+#      - ./master/core:/app/core
+#      - ./miner3/blockchain:/app/blockchain
+#      - ./miner3/wallet:/app/wallet
