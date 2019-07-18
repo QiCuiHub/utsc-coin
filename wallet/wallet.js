@@ -75,7 +75,7 @@ setTimeout(() => {
   connections.forEach((socket) => {
     let out = {action: 'transact', transaction: transaction};
     socket.write(JSON.stringify(out));
-    socket.destroy();
+    socket.end();
   });
 
   swarm.leave(topic);

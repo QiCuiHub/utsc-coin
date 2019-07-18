@@ -10,6 +10,8 @@ const topic = crypto.createHash('sha256')
   .update('utsc-miner-network')
   .digest();
 
+console.log(topic.toString('base64'));
+
 const miner = new ProofOfAuthorityMiner(
   './blockchain/blockchain.json',
   './blockchain/utxo.json',
@@ -28,6 +30,7 @@ swarm.on('connection', (socket, details) => {
     // attach listeners to socket
     socket.on('data', (data) => {
       let body = JSON.parse(data.toString());
+      console.log(body);
 
       switch (body.action){
         // if other node height is greater than stored height request for difference
@@ -50,8 +53,12 @@ swarm.on('connection', (socket, details) => {
           break;
       }
 
-    }).on('close', () => {
+    })
+    .on('close', () => {
       connections.delete(socket);
+    })
+    .on('error', (err) => {
+      if (err.code === 'UTP_ETIMEDOUT') connections.delete(socket);
     });
 
     // save connection for future reference
@@ -60,7 +67,8 @@ swarm.on('connection', (socket, details) => {
 
   // new incoming node connections
   else {
-    
+    console.log('new joined');
+
     // attach listener
     socket.on('data', (data) => {
       let body = JSON.parse(data.toString());
@@ -83,6 +91,12 @@ swarm.on('connection', (socket, details) => {
         default:
           break;
       }
+    })
+    .on('close', () => {
+      connections.delete(socket);
+    })
+    .on('error', (err) => {
+      if (err.code === 'UTP_ETIMEDOUT') connections.delete(socket);
     });
     
     // send the height of stored blockchain to new incoming node
