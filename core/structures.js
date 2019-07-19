@@ -85,9 +85,7 @@ class Block {
 class Blockchain {
   constructor(blockchainJSON){
     this.blocks = new Map();
-    this.longestLength = 0;
     this.head = null;
-
     this.parse(blockchainJSON.blocks);
   }
 
@@ -105,9 +103,8 @@ class Blockchain {
 
     // if the height of the new chain is longer than the current one
     // set it as the new main chain
-    if (height > this.longestLength){
+    if (height > this.head.height){
       this.head = block;
-      this.longestLength = height;
       this.head.height = height;
     }
 
@@ -141,13 +138,11 @@ class Blockchain {
   }
 
   getLastHash(){
-    let block = this.blocks[this.blocks.length];
-    if (block) return block.blockhash;
-    else return '0';
+    return this.head.blockHash;
   }
 
   getHeight(){
-    return this.blocks.length;
+    return this.head.height;
   }
 }
 
