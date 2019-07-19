@@ -24,33 +24,31 @@ wl.defaults({keys : {}})
   .write();
 
 // create coinbase transaction
-let utxoIN = [];
-let utxoOUT = [{address: pub, value: 1000}];
-let signature = 'UTSC COIN'; // coinbase contains random data
-let pubKey = 'IS THE BEST';
-let type = 'coinbase';
-let transaction = new Transaction(utxoIN, utxoOUT, pubKey, type, signature);
+let transaction = new Transaction({
+  input     : [], 
+  output    : [{address: pub, value: 1000}],
+  signature : 'UTSC COIN',
+  pubKey    : 'IS THE BEST',
+  type      : 'coinbase'
+});
+
 transaction.txid = transaction.getID(); 
 
 // create genesis block
-let txList = [transaction];
-let prevHash = '0'
-let block = new Block(txList, prevHash);
+let block = new Block({
+  transactions : [transaction],
+  prevHash     : '0',
+  height       : 0
+});
+
 block.txRootHash = block.getMerkleRoot();
 block.blockHash = block.getBlockHash();
 
-// add it to the block chain
-let chain = new Blockchain([]);
-chain.add(block);
-
-// keep track of utxos
-ut.defaults({utxo : {}})
-  .assign({utxo : {}})
-  .get('utxo')
-  .assign({[transaction.getID()] : transaction.output})
-  .write();
+let blockchain = {
+  blocks: [block]
+}
 
 // save blockchain
-bc.assign(chain)
+bc.assign(blockchain)
   .write();
 

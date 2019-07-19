@@ -33,6 +33,7 @@ class Block {
     this.prevHash     = blockJSON.prevHash;
     this.txRootHash   = blockJSON.txRootHash;
     this.blockHash    = blockJSON.blockHash;
+    this.height       = blockJSON.height;
   }
 
   parse(txList){
@@ -82,40 +83,61 @@ class Block {
 }
 
 class Blockchain {
-  constructor(blockchain){
-    this.blocks = this.parse(blockchain.blocks);
-    this.utxos = this.getUTXOs();
+  constructor(blockchainJSON){
+    this.blocks = new Map();
+    this.longestLength = 0;
+    this.head = null;
+
+    this.parse(blockchainJSON.blocks);
   }
 
-  parse(blockchainJSON){
-    if (blockchainJSON) return blockchainJSON.map((curr) => {
-      return new Block(curr);
+  parse(blocks){
+    if (blocks) blocks.forEach((curr) => {
+      let block = new Block(curr);
+      this.add(block);
     });
-    else return [];
+
+    return blocks;
   }
 
   add(block){
-    this.blocks.push(block);
+    let height = this.blocks.get(block.prevHash).height + 1;
+
+    // if the height of the new chain is longer than the current one
+    // set it as the new main chain
+    if (height > this.longestLength){
+      this.head = block;
+      this.longestLength = height;
+      this.head.height = height;
+    }
+
+    this.blocks.set(block, block.blockHash);
   }
 
   getUTXOs(){
     /* replay transactions in the blockchain */
+
+    let utxos = {}
+    let currBlock = this.head.blockHash;
     
-    return this.blocks.reduce((acc, block) => {
+    // only utxos from the main chain are valid
+    while (currBlock !== '0'){
+      let block = this.blocks.get(currBlock);
+
       block.transactions.forEach((tx) => {
         // add the outputs to the list of utxos
         tx.output.forEach((curr, idx) => {
-          acc[tx.txid + '.' + idx] = curr
+          utxos[tx.txid + '.' + idx] = curr
         });
 
         // remove the inputs from the list of utxos
         tx.input.forEach((curr, idx) => {
-          delete acc[curr.txid + '.' + idx];
+          delete utxos[curr.txid + '.' + idx];
         });
       });
-      
-      return acc;
-    }, {});
+
+      currBlock = block.prevHash;
+    }
   }
 
   getLastHash(){

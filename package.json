@@ -11,7 +11,9 @@
     "nodemon": "^1.19.1"
   },
   "nodemonConfig": {
-    "ignore": ["wallet/*"]
+    "ignore": [
+      "wallet/*"
+    ]
   },
   "scripts": {
     "test": "nodemon -L core/server.js",

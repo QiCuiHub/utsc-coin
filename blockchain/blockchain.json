@@ -6,19 +6,19 @@
           "input": [],
           "output": [
             {
-              "address": "3056301006072a8648ce3d020106052b8104000a034200048f2982985e3a0c2673b91a3c454824a562e95aa146eb82e34433e045c39f788eaf4a1c7afc5b31b8c5181ba3d5c2c9b85e8868d230d1196ebd2c70f33ec0887c",
+              "address": "3056301006072a8648ce3d020106052b8104000a0342000464af3fce2ba7915e6e855996f2b3034ce99d400306d297ed3ecb36fd00ddce63b48b8550729feebb550f88b94ddfd398793ed33a4502806f9d45cc6e33128077",
               "value": 1000
             }
           ],
-          "publicKey": "IS THE BEST",
           "type": "coinbase",
           "signature": "UTSC COIN",
-          "txid": "0c00084693bf59ec1f618e34faa943004107291a8154e3831280320fce4bf10a"
+          "txid": "57fe353b59e6460a99330d1eb3038f3beb3af33ce215fd6e9658d9e61dffeeb8"
         }
       ],
       "prevHash": "0",
-      "txRootHash": "0c00084693bf59ec1f618e34faa943004107291a8154e3831280320fce4bf10a",
-      "blockHash": "29ab8127aa26b1642e276e2bff148c0dd9840ef7c2b2eb3f445da050703e8396"
+      "txRootHash": "57fe353b59e6460a99330d1eb3038f3beb3af33ce215fd6e9658d9e61dffeeb8",
+      "blockHash": "29ab8127aa26b1642e276e2bff148c0dd9840ef7c2b2eb3f445da050703e8396",
+      "height": 0
     }
   ]
 }
