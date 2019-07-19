@@ -90,9 +90,15 @@ class Blockchain {
   }
 
   parse(blocks){
-    if (blocks) blocks.forEach((curr) => {
+    if (blocks) blocks.forEach((curr, idx) => {
       let block = new Block(curr);
-      this.add(block);
+
+      // genesis block is hardcoded
+      if (block.prevHash === '0'){
+        this.blocks.set(block.blockHash, block);   
+        this.head = block;
+      }else this.add(block);
+      
     });
 
     return blocks;
@@ -108,7 +114,7 @@ class Blockchain {
       this.head.height = height;
     }
 
-    this.blocks.set(block, block.blockHash);
+    this.blocks.set(block.blockHash, block);
   }
 
   getUTXOs(){
@@ -116,7 +122,7 @@ class Blockchain {
 
     let utxos = {}
     let currBlock = this.head.blockHash;
-    
+
     // only utxos from the main chain are valid
     while (currBlock !== '0'){
       let block = this.blocks.get(currBlock);
@@ -135,6 +141,23 @@ class Blockchain {
 
       currBlock = block.prevHash;
     }
+  }
+
+  getBlocks(startHeight, endHeight){
+    /* startHeight < endHeight, startHeight >= 0 */
+
+    let out = [];
+    
+    let currBlock = this.head.blockHash;
+    while (currBlock.height >= startHeight) {
+      let block = this.blocks.get(currBlock);
+      
+      // todo 
+
+      currBlock = block.prevHash;
+    }
+
+    return out;
   }
 
   getLastHash(){

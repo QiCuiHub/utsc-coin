@@ -67,7 +67,6 @@ swarm.on('connection', (socket, details) => {
 
   // new incoming node connections
   else {
-    console.log('new joined');
 
     // attach listener
     socket.on('data', (data) => {
@@ -76,7 +75,7 @@ swarm.on('connection', (socket, details) => {
       switch (body.action){
         // other node requested download for blocks
         case 'requestBlocks':
-          let blocks = miner.blockchain.blocks.slice(body.height);
+          let blocks = miner.blockchain.getBlocks(body.height, miner.blockchain.getHeight());
           let output = {action: 'sendBlocks', blocks: blocks};
           socket.write(JSON.stringify(output));
           break;
