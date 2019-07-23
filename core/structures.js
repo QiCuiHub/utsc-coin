@@ -34,6 +34,7 @@ class Block {
     this.txRootHash   = blockJSON.txRootHash;
     this.blockHash    = blockJSON.blockHash;
     this.height       = blockJSON.height;
+    this.nonce        = blockJSON.nonce;
   }
 
   parse(txList){
@@ -45,7 +46,9 @@ class Block {
   getBlockHash(){
     return crypto
       .createHash('sha256')
-      .update(this.prevHash + this.txMerkleHash, 'utf-8')
+      .update(this.prevHash + '.', 'utf-8')
+      .update(this.txMerkleHash + '.', 'utf-8')
+      .update(this.nonce + '.', 'utf-8')
       .digest('hex');
   }
 
@@ -141,20 +144,19 @@ class Blockchain {
 
       currBlock = block.prevHash;
     }
+
+    return utxos;
   }
 
   getBlocks(startHeight, endHeight){
     /* startHeight < endHeight, startHeight >= 0 */
 
     let out = [];
-    
-    let currBlock = this.head.blockHash;
-    while (currBlock.height >= startHeight) {
-      let block = this.blocks.get(currBlock);
-      
-      // todo 
+    let currBlock = this.head;
 
-      currBlock = block.prevHash;
+    while (currBlock.height > startHeight) {
+      out.push(currBlock);
+      currBlock = this.blocks.get(block.prevHash);
     }
 
     return out;

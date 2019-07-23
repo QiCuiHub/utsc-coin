@@ -89,8 +89,11 @@ class Miner {
     // blockhash matches
     let checkHash = block.blockHash === block.getBlockHash();
 
+    // 10 tx per block
+    let checkTxLimit = block.transactions.length === 10;
+
     console.log('block', checkType, checkUniq, checkTx, checkRoot, checkPrev, checkHash);
-    return checkType && checkUniq && checkTx 
+    return checkType && checkUniq && checkTx && checkTxLimit
       && checkRoot && checkPrev && checkHash;
   }
 

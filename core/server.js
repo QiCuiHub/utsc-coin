@@ -30,7 +30,6 @@ swarm.on('connection', (socket, details) => {
     // attach listeners to socket
     socket.on('data', (data) => {
       let body = JSON.parse(data.toString());
-      console.log(body);
 
       switch (body.action){
         // if other node height is greater than stored height request for difference

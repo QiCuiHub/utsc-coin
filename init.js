@@ -38,6 +38,7 @@ transaction.txid = transaction.getID();
 let block = new Block({
   transactions : [transaction],
   prevHash     : '0',
+  nonce        : '0',
   height       : 0
 });
 
