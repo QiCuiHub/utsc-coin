@@ -25,7 +25,7 @@ let pri = keys[pub];
 
 // get utxos that belong to the public key
 let blockchain = new Blockchain(bl.value());
-let input_tx = blockchain.blocks[0].transactions[0];
+let input_tx = blockchain.blocks.values().next().value.transactions[0];
 let input = [{txid: input_tx.getID(), idx: 0}];
 
 // pay to another wallet
