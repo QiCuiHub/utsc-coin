@@ -47,8 +47,8 @@ class Block {
     return crypto
       .createHash('sha256')
       .update(this.prevHash + '.', 'utf-8')
-      .update(this.txMerkleHash + '.', 'utf-8')
-      .update(this.nonce + '.', 'utf-8')
+      .update(this.txRootHash + '.', 'utf-8')
+      .update(this.nonce.toString() + '.', 'utf-8')
       .digest('hex');
   }
 

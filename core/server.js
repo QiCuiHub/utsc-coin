@@ -1,5 +1,5 @@
 const hyperswarm = require('hyperswarm');
-const {ProofOfAuthorityMiner} = require('./miner.js');
+const {ProofOfWorkMiner} = require('./miner.js');
 const {Block, Transaction} = require('./structures');
 const crypto = require('crypto');
 
@@ -12,7 +12,7 @@ const topic = crypto.createHash('sha256')
 
 console.log(topic.toString('base64'));
 
-const miner = new ProofOfAuthorityMiner(
+const miner = new ProofOfWorkMiner(
   './blockchain/blockchain.json',
   './blockchain/utxo.json',
   './wallet/keys.json'
@@ -112,3 +112,5 @@ process.on('SIGINT', () => {
   swarm.leave(topic);
   process.exit(0);
 });
+
+miner.startMining(10000);
