@@ -179,6 +179,9 @@ class ProofOfWorkMiner extends Miner{
       prevHash     : this.blockchain.getLastHash(),
       nonce        : 0
     });
+
+    this.candidate.txRootHash = this.candidate.getMerkleRoot();
+    this.candidate.blockHash = this.candidate.getBlockHash();
   }
 
   mine() {
