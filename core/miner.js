@@ -11,6 +11,10 @@ class Miner {
     this.utDB = lowdb(new FileSync(utxoPath));
     this.wlDB = lowdb(new FileSync(walletPath));
 
+    this.keyPairs = this.wlDB
+      .get('keys')
+      .value();
+
     this.txPool = new Map();
     this.blockchain = new Blockchain(this.bcDB.value());
 
@@ -147,8 +151,56 @@ class ProofOfAuthorityMiner extends Miner{
 }
 
 class ProofOfWorkMiner extends Miner{
-  mine() {
+  constructor(bcPath, utxoPath, walletPath){
+    super(bcPath, utxoPath, walletPath);
+    this.difficulty = 4294967295;
+    this.candidate = null;
 
+    this.newCandidate();
+  }
+
+  newCandidate(){
+    let pub = Object.keys(this.keyPairs)[0];
+    let pri = this.keyPairs[pub];
+
+    // coinbase transaction to self
+    let coinbase = new Transaction({
+      input     : [],
+      output    : [{address: pub, value: 10}],
+      publicKey : pub,
+      type      : "coinbase"
+    });
+
+    coinbase.txid = coinbase.getID();
+    coinbase.signature = ops.sign(coinbase.txid, pri);
+
+    this.candidate = new Block({
+      transactions : [coinbase],
+      prevHash     : this.blockchain.getLastHash(),
+      nonce        : 0
+    });
+
+    this.candidate.txRootHash = this.candidate.getMerkleRoot();
+    this.candidate.blockHash = this.candidate.getBlockHash();
+  }
+
+  mine() {
+    let buf = Buffer.from(this.candidate.blockHash, 'hex');
+    let num = buf.readUInt32BE(0);
+    console.log(num < this.difficulty);
+
+    // if the block is valid broadcast
+    if (num < this.difficulty){
+
+
+    // else increment the nonce
+    }else {
+      this.candidate.nonce += 1;
+    }
+  }
+
+  startMining(interval){
+    setInterval(() => {this.mine()}, interval);
   }
 }
 
