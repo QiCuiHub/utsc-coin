@@ -160,6 +160,7 @@ class ProofOfWorkMiner extends Miner{
   }
 
   newCandidate(){
+    // select a random key pair in the wallet
     let pub = Object.keys(this.keyPairs)[0];
     let pri = this.keyPairs[pub];
 
@@ -174,6 +175,7 @@ class ProofOfWorkMiner extends Miner{
     coinbase.txid = coinbase.getID();
     coinbase.signature = ops.sign(coinbase.txid, pri);
 
+    // create candidate block
     this.candidate = new Block({
       transactions : [coinbase],
       prevHash     : this.blockchain.getLastHash(),
@@ -184,23 +186,23 @@ class ProofOfWorkMiner extends Miner{
     this.candidate.blockHash = this.candidate.getBlockHash();
   }
 
-  mine() {
+  mine(callback) {
     let buf = Buffer.from(this.candidate.blockHash, 'hex');
     let num = buf.readUInt32BE(0);
     console.log(num < this.difficulty);
 
-    // if the block is valid broadcast
+    // if the block is valid return in a callback
     if (num < this.difficulty){
-
-
+      callback(this.candidate)
+      
     // else increment the nonce
     }else {
       this.candidate.nonce += 1;
     }
   }
 
-  startMining(interval){
-    setInterval(() => {this.mine()}, interval);
+  startMining(interval, callback){
+    setInterval(() => {this.mine(callback)}, interval);
   }
 }
 

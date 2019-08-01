@@ -113,4 +113,8 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-miner.startMining(10000);
+miner.startMining(10000, (block) => {
+  // broadcast block to every
+  console.log(block);
+
+});
