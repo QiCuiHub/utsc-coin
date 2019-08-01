@@ -24,80 +24,69 @@ swarm.join(topic, {
 });
 
 swarm.on('connection', (socket, details) => {
-  // establish connection to other nodes
-  if (details.client === true) {
+  /* establish connection to other nodes */
+  connections.add(socket);
 
-    // attach listeners to socket
-    socket.on('data', (data) => {
-      let body = JSON.parse(data.toString());
+  // attach listener to socket
+  socket.on('data', (data) => {
+    let body = JSON.parse(data.toString());
+    console.log(body);
 
-      switch (body.action){
-        // if other node height is greater than stored height request for difference
-        case 'hello':
-          if (body.height < miner.blockchain.getHeight()) break;
-          let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
-          socket.write(JSON.stringify(output));
-          break;
+    switch (body.action){
 
-        // received blocks from other node
-        case 'sendBlocks': 
-          body.blocks.forEach((curr) => {
-            let block = new Block(curr);
-            if (miner.verifyBlock(block)) miner.addBlock(block);
-          });
-          break;
-        
-        // error
-        default:
-          break;
+      // if other node height is greater than stored height request for difference
+      case 'hello': {
+        if (body.height < miner.blockchain.getHeight()) break;
+        let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
+        socket.write(JSON.stringify(output));
+        break;
       }
 
-    })
-    .on('close', () => {
-      connections.delete(socket);
-    })
-    .on('error', (err) => {
-      if (err.code === 'UTP_ETIMEDOUT') connections.delete(socket);
-    });
-
-    // save connection for future reference
-    connections.add(socket);
-  }
-
-  // new incoming node connections
-  else {
-
-    // attach listener
-    socket.on('data', (data) => {
-      let body = JSON.parse(data.toString());
-
-      switch (body.action){
-        // other node requested download for blocks
-        case 'requestBlocks':
-          let blocks = miner.blockchain.getBlocks(body.height, miner.blockchain.getHeight());
-          let output = {action: 'sendBlocks', blocks: blocks};
-          socket.write(JSON.stringify(output));
-          break;
-
-        // test
-        case 'transact':
-          let transaction = new Transaction(body.transaction);
-          if (miner.verifyTX(transaction)) miner.stageTX(transaction);
-          break;
-
-        // error
-        default:
-          break;
+      // received blocks from other node
+      case 'sendBlocks': {
+        body.blocks.forEach((curr) => {
+          let block = new Block(curr);
+          if (miner.verifyBlock(block)) miner.addBlock(block);
+        });
+        break;
       }
-    })
-    .on('close', () => {
-      connections.delete(socket);
-    })
-    .on('error', (err) => {
-      if (err.code === 'UTP_ETIMEDOUT') connections.delete(socket);
-    });
-    
-    // send the height of stored blockchain to new incoming node
+
+      // other node requested download for blocks
+      case 'requestBlocks': {
+        let blocks = miner.blockchain.getBlocks(body.height, miner.blockchain.getHeight());
+        let output = {action: 'sendBlocks', blocks: blocks};
+        socket.write(JSON.stringify(output));
+        break;
+      }
+
+      // test
+      case 'transact': {
+        let transaction = new Transaction(body.transaction);
+        if (miner.verifyTX(transaction)) miner.stageTX(transaction);
+        break;
+      }
+
+      case 'newMinedBlock': {
+        console.log(body.block);
+        break;
+      } 
+
+      // error
+      default: {
+        break;
+      }
+
+    }
+  })
+  .on('close', () => {
+    connections.delete(socket);
+  })
+  .on('error', (err) => {
+    if (err.code === 'UTP_ETIMEDOUT') connections.delete(socket);
+  });
+  
+  // send the height of stored blockchain to new incoming node
+  if (details.client === false) {
     let output = {action: 'hello', height: miner.blockchain.getHeight()};
     socket.write(JSON.stringify(output));
   }
@@ -113,8 +102,10 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-miner.startMining(10000, (block) => {
-  // broadcast block to every
-  console.log(block);
-
+miner.startMining(60000, (block) => {
+  // broadcast block to every connection
+  connections.forEach((socket) => {
+    let output = {action: 'newMinedBlock', block: block};
+    socket.write(JSON.stringify(output));
+  });
 });

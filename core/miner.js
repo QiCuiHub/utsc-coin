@@ -189,7 +189,6 @@ class ProofOfWorkMiner extends Miner{
   mine(callback) {
     let buf = Buffer.from(this.candidate.blockHash, 'hex');
     let num = buf.readUInt32BE(0);
-    console.log(num < this.difficulty);
 
     // if the block is valid return in a callback
     if (num < this.difficulty){
