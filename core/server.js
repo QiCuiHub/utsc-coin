@@ -30,7 +30,7 @@ swarm.on('connection', (socket, details) => {
   // attach listener to socket
   socket.on('data', (data) => {
     let body = JSON.parse(data.toString());
-    console.log(body);
+    //console.log(body);
 
     switch (body.action){
 
@@ -67,8 +67,8 @@ swarm.on('connection', (socket, details) => {
       }
 
       case 'newMinedBlock': {
-        console.log(body.block);
-        break;
+        let block = new Block(body.block);
+        if (miner.verifyBlock(block)) miner.addBlock(block);
       } 
 
       // error
@@ -103,6 +103,7 @@ process.on('SIGINT', () => {
 });
 
 miner.startMining(60000, (block) => {
+  console.log('numconn', connections.size);
   // broadcast block to every connection
   connections.forEach((socket) => {
     let output = {action: 'newMinedBlock', block: block};

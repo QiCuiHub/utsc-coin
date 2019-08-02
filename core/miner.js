@@ -2,7 +2,7 @@ const lowdb = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const {Blockchain, Block, Transaction} = require('./structures.js');
 const ops = require('./operations.js');
-
+const crypto = require('crypto');
 
 class Miner {
   constructor(bcPath, utxoPath, walletPath){
@@ -68,10 +68,18 @@ class Miner {
     let checkType = block.transactions[0].type === 'coinbase';
 
     // coinbase txid cannot be same as previous coinbase txid
-    let checkUniq = this.blockchain.blocks.every((curr) => {
-      return curr.transactions[0].txid !== block.transactions[0].txid;
+    let checkUniq = true;
+    this.blockchain.blocks.forEach((val, key) => {
+      if (val.transactions[0].txid === block.transactions[0].txid)
+        checkUniq = false;
     });
 
+    // coinbase value equal to 10
+    let checkReward = block.transactions[0].output.reduce((acc, curr) => {
+      acc += curr.value;
+      return acc;
+    }, 0);
+    
     // no transaction doublespend and valid
     let stageTemp = {};
     let spentTemp = {};
@@ -93,12 +101,15 @@ class Miner {
     // blockhash matches
     let checkHash = block.blockHash === block.getBlockHash();
 
-    // 10 tx per block
-    let checkTxLimit = block.transactions.length === 10;
+    // max 10 tx per block
+    let checkTxLimit = block.transactions.length <= 10;
 
-    console.log('block', checkType, checkUniq, checkTx, checkRoot, checkPrev, checkHash);
+    //console.log('blockchain', this.blockchain);
+    //console.log('block', block);
+    //console.log('verify', checkType, checkUniq, checkTx, checkTxLimit, checkRoot, 
+    //  checkPrev, checkHash, checkReward);
     return checkType && checkUniq && checkTx && checkTxLimit
-      && checkRoot && checkPrev && checkHash;
+      && checkRoot && checkPrev && checkHash && checkReward === 10;
   }
 
   stageTX(tx, stageUtxos = this.stageUtxos, spentUtxos = this.spentUtxos, dryRun = false){
@@ -173,7 +184,7 @@ class ProofOfWorkMiner extends Miner{
     });
 
     coinbase.txid = coinbase.getID();
-    coinbase.signature = ops.sign(coinbase.txid, pri);
+    coinbase.signature = crypto.randomBytes(64).toString('hex'); // random data
 
     // create candidate block
     this.candidate = new Block({
