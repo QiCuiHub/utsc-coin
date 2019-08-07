@@ -69,8 +69,8 @@ if (process.argv.length < 3) {
 
 }else if (program.keys) {
   let kp = ops.getKeyPair();
-  console.log('Private Key: ', kp.privateKey);
   console.log('Public Key: ', kp.publicKey);
+  console.log('Private Key: ', kp.privateKey);
 }
 
 
