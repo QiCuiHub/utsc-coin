@@ -2,13 +2,18 @@ const crypto = require('crypto');
 const ops = require('./operations.js');
 
 class Transaction {
-  constructor(txJSON) {
+  constructor(txJSON, privateKey=null) {
+    // read transaction JSON
     this.input  = txJSON.input;
     this.output = txJSON.output;
     this.publicKey = txJSON.publicKey;
     this.type = txJSON.type;
     this.signature = txJSON.signature;
     this.txid = txJSON.txid;
+
+    // automatically populate missing information
+    if (!this.txid) this.txid = this.getID();
+    if (privateKey) this.signature = ops.sign(this.txid, privateKey);
   }
 
   getID() {
@@ -29,12 +34,17 @@ class Transaction {
 
 class Block {
   constructor(blockJSON) {
+    // read block JSON
     this.transactions = this.parse(blockJSON.transactions);
     this.prevHash     = blockJSON.prevHash;
     this.txRootHash   = blockJSON.txRootHash;
     this.blockHash    = blockJSON.blockHash;
     this.height       = blockJSON.height;
     this.nonce        = blockJSON.nonce;
+
+    // automatically populate missing information
+    if (!this.txRootHash) this.txRootHash = this.getMerkleRoot();
+    if (!this.blockHash) this.blockHash = this.getBlockHash();
   }
 
   parse(txList){
