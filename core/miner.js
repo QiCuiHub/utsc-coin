@@ -23,7 +23,7 @@ class Miner {
     this.spentUtxos = {};
   }
 
-  verifyTX(tx, stageUtxos = this.stageUtxos, spentUtxos = this.spentUtxos){
+  verifyTX(tx, stageUtxos=this.stageUtxos, spentUtxos=this.spentUtxos, test=false){
     /* verify payment type transactions */
 
     // txid must equal getID
@@ -63,7 +63,7 @@ class Miner {
     return checkID && checkSig && checkUtxo && inputVal === outputVal;
   }
 
-  verifyBlock(block){
+  verifyBlock(block, test=false){
     // first transaction is a coinbase transactionin
     let checkType = block.transactions[0].type === 'coinbase';
 
@@ -112,7 +112,7 @@ class Miner {
       && checkRoot && checkPrev && checkHash && checkReward === 10;
   }
 
-  stageTX(tx, stageUtxos = this.stageUtxos, spentUtxos = this.spentUtxos, dryRun = false){
+  stageTX(tx, stageUtxos=this.stageUtxos, spentUtxos=this.spentUtxos, dryRun=false){
     // add to tx pool
     if (!dryRun) this.txPool.set(tx.txid, tx);
 
