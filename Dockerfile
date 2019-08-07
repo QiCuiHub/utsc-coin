@@ -7,4 +7,4 @@ ADD blockchain /app/blockchain
 ADD wallet /app/wallet
 
 RUN npm install
-ENTRYPOINT npm test
+ENTRYPOINT npm dev
