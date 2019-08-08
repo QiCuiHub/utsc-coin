@@ -1,11 +1,17 @@
-var assert = require('assert');
+var expect = require('expect');
 var {Blockchain, Block, Transaction} = require('../core/structures.js');
 var {Miner, ProofOfWorkMiner} = require('../core/miner.js')
+var testStructs = require('./test-structures.js');
 
-describe('#verifyTX', function() {
+let TestMiner = new Miner(test=true);
+TestMiner.blockchain.set(testStructs.blockGenesis.blockHash, testStructs.blockGenesis);
+
+describe('Adding new block', function() {
+
+  let verify = TestMiner.verifyBlock(testStructs.block1, true);
 
   it('correct id', function() {
-    assert.equal([1, 2, 3].indexOf(4), -1);
+    expect(verify[0], true);
   });
 
   it('correct signature', function() {

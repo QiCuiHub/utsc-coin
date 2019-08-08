@@ -21,30 +21,52 @@ const blockGenesis = new Block({
   transactions: [
     new Transaction({
       input     : [],
-      output    : [],
-      publicKey : Object.keys(walletA)[0],
+      output    : [
+        {
+          address : Object.keys(walletA)[0],
+          value   : 1000
+        }
+      ],
+      publicKey : 'First',
+      signature : 'Block',
       type      : 'coinbase'
-    }, 
-    Object.values(walletA)[0])
+    })
   ],
   prevHash   : '0',
   height     : 0,
   nonce      : 0
 });
 
-/*
 const block1 = new Block({
-  transanction: [
-
+  transactions: [
+    new Transaction({
+      input : [
+        {
+          txid : blockGenesis.transactions[0].txid,
+          idx  : 0
+        } 
+      ],
+      output : [
+        {
+          address : Object.keys(walletB)[0],
+          value   : 500
+        },
+        {
+          address : Object.keys(walletA)[0],
+          value   : 500
+        }
+      ],
+      publicKey : Object.keys(walletA)[0],
+      type      : 'transaction'
+    }, 
+    Object.values(walletA)[0])
   ],
-  prevHash: blockGensis.blockHash,
+  prevHash: blockGenesis.blockHash,
   height: 1,
   nonce: 0
 });
 
-block1.txRootHash = block1.getMerkleRoot();
-block1.blockHash = block1.getBlockHash();
-
+/*
 const block2 = new Block({
 
 });
@@ -61,10 +83,13 @@ const testChain = new BlockChain({
 
 
 });
+*/
 
 module.exports = {
-  testChain: testChain
+  testStructs : {
+    blockGenesis : blockGenesis,
+    block1       : block1
+  }
 }
-*/
 
 

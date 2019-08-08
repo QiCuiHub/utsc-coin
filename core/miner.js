@@ -104,10 +104,9 @@ class Miner {
     // max 10 tx per block
     let checkTxLimit = block.transactions.length <= 10;
 
-    //console.log('blockchain', this.blockchain);
-    //console.log('block', block);
-    //console.log('verify', checkType, checkUniq, checkTx, checkTxLimit, checkRoot, 
-    //  checkPrev, checkHash, checkReward);
+    if (test) return [checkType, checkUniq, checkTx, checkTxLimit, 
+      checkRoot, checkPrev, checkHash, checkReward === 10];
+
     return checkType && checkUniq && checkTx && checkTxLimit
       && checkRoot && checkPrev && checkHash && checkReward === 10;
   }

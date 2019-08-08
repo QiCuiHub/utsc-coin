@@ -40,22 +40,17 @@ if (process.argv.length < 3) {
     input     : [], 
     output    : [{address: pub, value: 1000}],
     signature : 'UTSC COIN',
-    pubKey    : 'IS THE BEST',
+    publicKey : 'IS THE BEST',
     type      : 'coinbase'
   });
-
-  transaction.txid = transaction.getID(); 
 
   // create genesis block
   let block = new Block({
     transactions : [transaction],
     prevHash     : '0',
-    nonce        : '0',
+    nonce        : 0,
     height       : 0
   });
-
-  block.txRootHash = block.getMerkleRoot();
-  block.blockHash = block.getBlockHash();
 
   let blockchain = {
     blocks: [block]
@@ -64,7 +59,7 @@ if (process.argv.length < 3) {
   // save blockchain
   bc.assign(blockchain)
     .write();
-  
+ 
   console.log('Success');
 
 }else if (program.keys) {

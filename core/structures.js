@@ -22,7 +22,7 @@ class Transaction {
 
     // id is the hash of all transaction data
     this.input.forEach((curr) => {hash.update(curr + '.', 'utf-8')});
-    this.output.forEach((curr) => {hash.update(curr.address + curr.value + '.', 'utf-8')});
+    this.output.forEach((curr) => {hash.update(curr + '.', 'utf-8')});
     hash.update(this.publicKey + '.', 'utf-8');
     hash.update(this.type + '.', 'utf-8');
 
