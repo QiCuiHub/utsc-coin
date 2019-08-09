@@ -126,14 +126,51 @@ const block2 = new Block({
   nonce: 0
 });
 
-/*
+// block2:
+//  mined by walletC
+//  wallet B sent 750 coins to walletA
 const block3 = new Block({
-
+  transactions: [
+    new Transaction({
+      input  : [],
+      output : [
+        {
+          address :  Object.keys(walletC)[0],
+          value   :  10
+        }
+      ],
+      publicKey : 'Random2',
+      signature : 'Data',
+      type      : 'coinbase'
+    }),
+    new Transaction({
+      input : [
+        {
+          txid : block1.transactions[1].txid,
+          idx  : 0
+        },
+        {
+          txid : block2.transactions[1].txid,
+          idx  : 0
+        }
+      ],
+      output : [
+        {
+          address : Object.keys(walletC)[0],
+          value   : 750
+        },
+      ],
+      publicKey : Object.keys(walletB)[0],
+      type      : 'transaction'
+    }, 
+    Object.values(walletB)[0])
+  ],
+  prevHash: block2.blockHash,
+  height: 3,
+  nonce: 0
 });
 
-const block4 = new Block({
-
-});
+/*
 
 const blockOrphan = new Block({
 
@@ -155,6 +192,7 @@ module.exports = {
     blockGenesis : blockGenesis,
     block1       : block1,
     block2       : block2,
+    block3       : block3,
     testChain    : testChain
 }
 
