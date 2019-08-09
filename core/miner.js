@@ -1,23 +1,11 @@
-const lowdb = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
 const {Blockchain, Block, Transaction} = require('./structures.js');
 const ops = require('./operations.js');
 const crypto = require('crypto');
 
 class Miner {
-  constructor(bcPath, utxoPath, walletPath){
-    // first load any state from files
-    this.bcDB = lowdb(new FileSync(bcPath));
-    this.utDB = lowdb(new FileSync(utxoPath));
-    this.wlDB = lowdb(new FileSync(walletPath));
-
-    this.keyPairs = this.wlDB
-      .get('keys')
-      .value();
-
+  constructor(blockchain, utxos){
     this.txPool = new Map();
-    this.blockchain = new Blockchain(this.bcDB.value());
-
+    this.blockchain = blockchain;
     this.blockUtxos = this.blockchain.getUTXOs();
     this.stageUtxos = {};
     this.spentUtxos = {};
@@ -59,7 +47,8 @@ class Miner {
       return acc;
     }, 0);
 
-    console.log('tx', checkID, checkSig, checkUtxo, inputVal, outputVal);
+    if (test) return [checkID, checkSig, checkUtxo, inputVal === outputVal];
+
     return checkID && checkSig && checkUtxo && inputVal === outputVal;
   }
 
@@ -161,18 +150,18 @@ class ProofOfAuthorityMiner extends Miner{
 }
 
 class ProofOfWorkMiner extends Miner{
-  constructor(bcPath, utxoPath, walletPath){
-    super(bcPath, utxoPath, walletPath);
+  constructor(blockchain, utxos, wallet){
+    super(blockchain, utxos); 
+    this.wallet = wallet;
     this.difficulty = 4294967295;
     this.candidate = null;
-
     this.newCandidate();
   }
 
   newCandidate(){
     // select a random key pair in the wallet
-    let pub = Object.keys(this.keyPairs)[0];
-    let pri = this.keyPairs[pub];
+    let pub = Object.keys(this.wallet)[0];
+    let pri = this.wallet[pub];
 
     // coinbase transaction to self
     let coinbase = new Transaction({

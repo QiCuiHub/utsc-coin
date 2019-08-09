@@ -37,8 +37,23 @@ const blockGenesis = new Block({
   nonce      : 0
 });
 
+// block1:
+//  mined by walletC
+//  sent 500 coins to wallet B
 const block1 = new Block({
   transactions: [
+    new Transaction({
+      input  : [],
+      output : [
+        {
+          address :  Object.keys(walletC)[0],
+          value   :  10
+        }
+      ],
+      publicKey : 'Random',
+      signature : 'Data0',
+      type      : 'coinbase'
+    }),
     new Transaction({
       input : [
         {
@@ -78,18 +93,16 @@ const block3 = new Block({
 const block4 = new Block({
 
 });
-
-const testChain = new BlockChain({
-
-
-});
 */
 
+const testChain = new Blockchain({
+  blocks: [blockGenesis]
+});
+
 module.exports = {
-  testStructs : {
     blockGenesis : blockGenesis,
-    block1       : block1
-  }
+    block1       : block1,
+    testChain    : testChain
 }
 
 

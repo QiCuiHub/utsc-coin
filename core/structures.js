@@ -73,7 +73,7 @@ class Block {
 
     // hash txid pairs in order until 1 left
     while (txids.length > 1){
-      for (i = 0; i < txids.length; i += 2){
+      for (var i = 0; i < txids.length; i += 2){
         let hash = crypto
           .createHash('sha256')
           .update(txids[i] + txids[i + 1], 'utf-8')

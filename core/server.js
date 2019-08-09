@@ -1,7 +1,9 @@
 const hyperswarm = require('hyperswarm');
 const {ProofOfWorkMiner} = require('./miner.js');
-const {Block, Transaction} = require('./structures');
+const {Blockchain, Block, Transaction} = require('./structures');
 const crypto = require('crypto');
+const lowdb = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 
 const swarm = hyperswarm();
 const connections = new Set();
@@ -12,10 +14,14 @@ const topic = crypto.createHash('sha256')
 
 console.log(topic.toString('base64'));
 
+const bcDB = lowdb(new FileSync('./blockchain/blockchain.json'));
+const utDB = lowdb(new FileSync('./blockchain/utxo.json'));
+const wlDB = lowdb(new FileSync('./wallet/keys.json'));
+
 const miner = new ProofOfWorkMiner(
-  './blockchain/blockchain.json',
-  './blockchain/utxo.json',
-  './wallet/keys.json'
+  new Blockchain(bcDB.value()),
+  null,
+  wlDB.get('keys').value()
 );
 
 swarm.join(topic, {
