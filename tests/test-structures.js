@@ -39,7 +39,7 @@ const blockGenesis = new Block({
 
 // block1:
 //  mined by walletC
-//  sent 500 coins to wallet B
+//  wallet A sent 500 coins to wallet B
 const block1 = new Block({
   transactions: [
     new Transaction({
@@ -50,8 +50,8 @@ const block1 = new Block({
           value   :  10
         }
       ],
-      publicKey : 'Random',
-      signature : 'Data0',
+      publicKey : 'Random0',
+      signature : 'Data',
       type      : 'coinbase'
     }),
     new Transaction({
@@ -81,16 +81,65 @@ const block1 = new Block({
   nonce: 0
 });
 
-/*
-const block2 = new Block({
 
+// block2:
+//  mined by walletC
+//  wallet A sent 250 coins to walletB
+const block2 = new Block({
+  transactions: [
+    new Transaction({
+      input  : [],
+      output : [
+        {
+          address :  Object.keys(walletC)[0],
+          value   :  10
+        }
+      ],
+      publicKey : 'Random1',
+      signature : 'Data',
+      type      : 'coinbase'
+    }),
+    new Transaction({
+      input : [
+        {
+          txid : block1.transactions[1].txid,
+          idx  : 1
+        } 
+      ],
+      output : [
+        {
+          address : Object.keys(walletB)[0],
+          value   : 250
+        },
+        {
+          address : Object.keys(walletA)[0],
+          value   : 250
+        }
+      ],
+      publicKey : Object.keys(walletA)[0],
+      type      : 'transaction'
+    }, 
+    Object.values(walletA)[0])
+  ],
+  prevHash: block1.blockHash,
+  height: 2,
+  nonce: 0
 });
 
+/*
 const block3 = new Block({
 
 });
 
 const block4 = new Block({
+
+});
+
+const blockOrphan = new Block({
+
+});
+
+const blockCompete = new Block({
 
 });
 */
@@ -100,8 +149,12 @@ const testChain = new Blockchain({
 });
 
 module.exports = {
+    walletA      : walletA,
+    walletB      : walletB,
+    walletC      : walletC,
     blockGenesis : blockGenesis,
     block1       : block1,
+    block2       : block2,
     testChain    : testChain
 }
 

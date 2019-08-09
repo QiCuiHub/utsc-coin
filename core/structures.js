@@ -21,8 +21,12 @@ class Transaction {
     let hash = crypto.createHash('sha256');
 
     // id is the hash of all transaction data
-    this.input.forEach((curr) => {hash.update(curr + '.', 'utf-8')});
-    this.output.forEach((curr) => {hash.update(curr + '.', 'utf-8')});
+    this.input.forEach((curr) => {hash.update(
+      curr.txid + '.' + 
+      curr.idx  + '.', 'utf-8')});
+    this.output.forEach((curr) => {hash.update(
+      curr.address + '.' +
+      curr.value   + '.', 'utf-8')});
     hash.update(this.publicKey + '.', 'utf-8');
     hash.update(this.type + '.', 'utf-8');
 
@@ -76,7 +80,7 @@ class Block {
       for (var i = 0; i < txids.length; i += 2){
         let hash = crypto
           .createHash('sha256')
-          .update(txids[i] + txids[i + 1], 'utf-8')
+          .update(txids[i] + '.' + txids[i + 1] + '.', 'utf-8')
           .digest('hex');
 
         nodes.push(hash);
