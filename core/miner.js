@@ -126,10 +126,10 @@ class Miner {
 
       // inputs
       tx.input.forEach((curr) => {
-        // remove input from spent utxos and dlete from blockutxo
+        // remove input from spent utxos and delete from blockutxo
         let id = curr.txid + '.' + curr.idx;
-        delete this.spentUtxo[id];
-        delete this.blockUtxo[id];
+        delete this.spentUtxos[id];
+        delete this.blockUtxos[id];
       });
 
       // outputs

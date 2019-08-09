@@ -20,6 +20,6 @@
   "scripts": {
     "dev": "nodemon -L core/server.js",
     "run": "node core/server.js",
-    "test": "jest ./tests"
+    "test": "jest --verbose ./tests"
   }
 }
