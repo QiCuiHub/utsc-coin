@@ -30,7 +30,7 @@ class Miner {
 
       // must exist and pay to the publicKey
       else {
-        let utxo = this.blockUtxos[id] || stageUtxos[id];
+        let utxo = blockUtxos[id] || stageUtxos[id];
         return utxo ? utxo.address == tx.publicKey : false;
       }
     });
@@ -38,7 +38,7 @@ class Miner {
     // input utxo value must be equal to output utxo value
     let inputVal = tx.input.reduce((acc, curr) => {
       let id = curr.txid + '.' + curr.idx;
-      let utxo = this.blockUtxos[id] || stageUtxos[id];
+      let utxo = blockUtxos[id] || stageUtxos[id];
       acc += utxo ? utxo.value : 0;
       return acc;
     }, 0);
@@ -78,12 +78,10 @@ class Miner {
     let blockUtxos = block.prevHash === this.blockchain.getLastHash() ? 
       this.blockUtxos : this.blockchain.getUTXOs(block.prevHash); 
 
-    console.log(blockUtxos);
-
     // replay tx, skipping coinbase
     let checkTx = block.transactions.every((tx, idx) => {
-      if (idx === 0 || this.verifyTX(tx, stageTemp, spentTemp)) {
-        this.stageTX(tx, blockUtxos, stageTemp, spentTemp, true);
+      if (idx === 0 || this.verifyTX(tx, blockUtxos, stageTemp, spentTemp)) {
+        this.stageTX(tx, stageTemp, spentTemp, true);
         return true;
       } else return false;
     });
@@ -108,7 +106,7 @@ class Miner {
     // add to tx pool
     if (!dryRun) this.txPool.set(tx.txid, tx);
 
-    // add utxo to spent utxos
+    // add input utxo to spent utxos
     tx.input.forEach((curr) => {
       spentUtxos[curr.txid + '.' + curr.idx] = '';
     });

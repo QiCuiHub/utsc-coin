@@ -128,7 +128,7 @@ const block2 = new Block({
 
 // block3:
 //  mined by walletC
-//  wallet B sent 750 coins to walletA
+//  wallet B sent 750 coins to walletC
 const block3 = new Block({
   transactions: [
     new Transaction({
@@ -171,15 +171,15 @@ const block3 = new Block({
 });
 
 // blockOrphan:
-//  mined by walletC
-//  wallet B sent 250 coins to walletA
+//  mined by walletB
+//  wallet A sent 250 coins to walletB
 const blockOrphan = new Block({
   transactions: [
     new Transaction({
       input  : [],
       output : [
         {
-          address :  Object.keys(walletC)[0],
+          address :  Object.keys(walletB)[0],
           value   :  10
         }
       ],
@@ -196,18 +196,18 @@ const blockOrphan = new Block({
       ],
       output : [
         {
-          address : Object.keys(walletA)[0],
-          value   : 250
-        },
-        {
           address : Object.keys(walletB)[0],
           value   : 250
         },
+        {
+          address : Object.keys(walletA)[0],
+          value   : 250
+        },
       ],
-      publicKey : Object.keys(walletB)[0],
+      publicKey : Object.keys(walletA)[0],
       type      : 'transaction'
     }, 
-    Object.values(walletB)[0])
+    Object.values(walletA)[0])
   ],
   prevHash: block1.blockHash,
   height: 2,
@@ -215,15 +215,15 @@ const blockOrphan = new Block({
 });
 
 // blockCompete:
-//  mined by walletC
-//  wallet B sent 250 coins to walletA
+//  mined by walletB
+//  wallet B sent 750 coins to walletC
 const blockCompete = new Block({
   transactions: [
     new Transaction({
       input  : [],
       output : [
         {
-          address :  Object.keys(walletC)[0],
+          address :  Object.keys(walletB)[0],
           value   :  10
         }
       ],
@@ -234,14 +234,18 @@ const blockCompete = new Block({
     new Transaction({
       input : [
         {
+          txid : block1.transactions[1].txid,
+          idx  : 0
+        },
+        {
           txid : blockOrphan.transactions[1].txid,
-          idx  : 1
+          idx  : 0
         }
       ],
       output : [
         {
-          address : Object.keys(walletA)[0],
-          value   : 250
+          address : Object.keys(walletC)[0],
+          value   : 750
         }
       ],
       publicKey : Object.keys(walletB)[0],
@@ -257,11 +261,6 @@ const blockCompete = new Block({
 /*
   Malformed block
 */
-
-
-const testChain = new Blockchain({
-  blocks: [blockGenesis]
-});
 
 module.exports = {
     walletA      : walletA,

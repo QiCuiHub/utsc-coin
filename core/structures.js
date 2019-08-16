@@ -153,8 +153,8 @@ class Blockchain {
         });
 
         // add the inputs to the set of spent utxos
-        tx.input.forEach((curr, idx) => {
-          spent.add(curr.txid + '.' + idx);
+        tx.input.forEach((curr) => {
+          spent.add(curr.txid + '.' + curr.idx);
         });
       });
 
