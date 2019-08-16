@@ -11,7 +11,8 @@ class Miner {
     this.spentUtxos = {};
   }
 
-  verifyTX(tx, stageUtxos=this.stageUtxos, spentUtxos=this.spentUtxos, test=false){
+  verifyTX(tx, blockUtxos=this.blockUtxos, stageUtxos=this.stageUtxos, 
+    spentUtxos=this.spentUtxos, test=false){
     /* verify payment type transactions */
 
     // txid must equal getID
@@ -73,19 +74,22 @@ class Miner {
     let stageTemp = {};
     let spentTemp = {};
 
+    // if attaching to head use this else generate utxos at attach point
+    let blockUtxos = block.prevHash === this.blockchain.getLastHash() ? 
+      this.blockUtxos : this.blockchain.getUTXOs(block.prevHash); 
+
+    console.log(blockUtxos);
+
     // replay tx, skipping coinbase
     let checkTx = block.transactions.every((tx, idx) => {
       if (idx === 0 || this.verifyTX(tx, stageTemp, spentTemp)) {
-        this.stageTX(tx, stageTemp, spentTemp, true);
+        this.stageTX(tx, blockUtxos, stageTemp, spentTemp, true);
         return true;
       } else return false;
     });
 
     // merkle root matches
     let checkRoot = block.txRootHash === block.getMerkleRoot();
-
-    // prevhash matches
-    let checkPrev = block.prevHash === this.blockchain.getLastHash();
 
     // blockhash matches
     let checkHash = block.blockHash === block.getBlockHash();
@@ -94,10 +98,10 @@ class Miner {
     let checkTxLimit = block.transactions.length <= 10;
 
     if (test) return [checkType, checkUniq, checkTx, checkTxLimit, 
-      checkRoot, checkPrev, checkHash, checkReward === 10];
+      checkRoot, checkHash, checkReward === 10];
 
     return checkType && checkUniq && checkTx && checkTxLimit
-      && checkRoot && checkPrev && checkHash && checkReward === 10;
+      && checkRoot && checkHash && checkReward === 10;
   }
 
   stageTX(tx, stageUtxos=this.stageUtxos, spentUtxos=this.spentUtxos, dryRun=false){

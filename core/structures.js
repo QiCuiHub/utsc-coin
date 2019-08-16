@@ -134,32 +134,34 @@ class Blockchain {
     this.blocks.set(block.blockHash, block);
   }
 
-  getUTXOs(){
+  getUTXOs(blockHash=this.head.blockHash){
     /* replay transactions in the blockchain */
 
-    let utxos = {}
-    let currBlock = this.head.blockHash;
+    let unspent = {}
+    let spent = new Set();
+    let currBlock = blockHash;
 
-    // only utxos from the main chain are valid
+    // traverse from specifed block to the genesis block
     while (currBlock !== '0'){
       let block = this.blocks.get(currBlock);
 
       block.transactions.forEach((tx) => {
-        // add the outputs to the list of utxos
+        // add the output utxos to unspent if not in spent
         tx.output.forEach((curr, idx) => {
-          utxos[tx.txid + '.' + idx] = curr
+          let id = tx.txid + '.' + idx;
+          if (!spent.has(id)) unspent[id] = curr;
         });
 
-        // remove the inputs from the list of utxos
+        // add the inputs to the set of spent utxos
         tx.input.forEach((curr, idx) => {
-          delete utxos[curr.txid + '.' + idx];
+          spent.add(curr.txid + '.' + idx);
         });
       });
 
       currBlock = block.prevHash;
     }
 
-    return utxos;
+    return unspent;
   }
 
   getBlocks(startHeight, endHeight){

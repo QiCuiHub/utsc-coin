@@ -126,7 +126,7 @@ const block2 = new Block({
   nonce: 0
 });
 
-// block2:
+// block3:
 //  mined by walletC
 //  wallet B sent 750 coins to walletA
 const block3 = new Block({
@@ -170,16 +170,94 @@ const block3 = new Block({
   nonce: 0
 });
 
-/*
-
+// blockOrphan:
+//  mined by walletC
+//  wallet B sent 250 coins to walletA
 const blockOrphan = new Block({
-
+  transactions: [
+    new Transaction({
+      input  : [],
+      output : [
+        {
+          address :  Object.keys(walletC)[0],
+          value   :  10
+        }
+      ],
+      publicKey : 'Random3',
+      signature : 'Data',
+      type      : 'coinbase'
+    }),
+    new Transaction({
+      input : [
+        {
+          txid : block1.transactions[1].txid,
+          idx  : 1
+        }
+      ],
+      output : [
+        {
+          address : Object.keys(walletA)[0],
+          value   : 250
+        },
+        {
+          address : Object.keys(walletB)[0],
+          value   : 250
+        },
+      ],
+      publicKey : Object.keys(walletB)[0],
+      type      : 'transaction'
+    }, 
+    Object.values(walletB)[0])
+  ],
+  prevHash: block1.blockHash,
+  height: 2,
+  nonce: 0
 });
 
+// blockCompete:
+//  mined by walletC
+//  wallet B sent 250 coins to walletA
 const blockCompete = new Block({
-
+  transactions: [
+    new Transaction({
+      input  : [],
+      output : [
+        {
+          address :  Object.keys(walletC)[0],
+          value   :  10
+        }
+      ],
+      publicKey : 'Random4',
+      signature : 'Data',
+      type      : 'coinbase'
+    }),
+    new Transaction({
+      input : [
+        {
+          txid : blockOrphan.transactions[1].txid,
+          idx  : 1
+        }
+      ],
+      output : [
+        {
+          address : Object.keys(walletA)[0],
+          value   : 250
+        }
+      ],
+      publicKey : Object.keys(walletB)[0],
+      type      : 'transaction'
+    }, 
+    Object.values(walletB)[0])
+  ],
+  prevHash: blockOrphan.blockHash,
+  height: 3,
+  nonce: 0
 });
+
+/*
+  Malformed block
 */
+
 
 const testChain = new Blockchain({
   blocks: [blockGenesis]
@@ -193,7 +271,8 @@ module.exports = {
     block1       : block1,
     block2       : block2,
     block3       : block3,
-    testChain    : testChain
+    blockOrphan  : blockOrphan,
+    blockCompete : blockCompete
 }
 
 
