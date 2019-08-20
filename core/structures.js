@@ -45,6 +45,7 @@ class Block {
     this.blockHash    = blockJSON.blockHash;
     this.height       = blockJSON.height;
     this.nonce        = blockJSON.nonce;
+    this.status       = blockJSON.status;
 
     // automatically populate missing information
     if (!this.txRootHash) this.txRootHash = this.getMerkleRoot();
@@ -122,16 +123,55 @@ class Blockchain {
   }
 
   add(block){
+    let orphanList = [];
     let height = this.blocks.get(block.prevHash).height + 1;
 
     // if the height of the new chain is longer than the current one
-    // set it as the new main chain
     if (height > this.head.height){
+      
+      // if the block is not an extension of the old head
+      if (block.prevHash !== this.head.blockHash){
+
+        // mark the new chain as temp
+        let currHash = block.blockHash;
+        while (currHash !== '0'){
+          let currBlock = this.blocks.get(currHash);
+          currBlock.status = 'temp';
+          currHash = currBlock.prevHash;
+        }
+
+        // record the old main chain as orphaned blocks
+        this.blocks.forEach((curr) => {
+          if (curr.status === 'main'){
+            orphanList.push(curr);
+          }
+        })
+
+        // mark the new chain as the main chain
+        currHash = block.blockHash;
+        while (currHash !== '0'){
+          let currBlock = this.blocks.get(currHash);
+          currBlock.status = 'main';
+          currHash = currBlock.prevHash;
+        }
+
+      // else mark as part of the main chain
+      } else {
+        block.status = 'main';
+      }
+
+      // update the head of the blockchain
       this.head = block;
       this.head.height = height;
+
+    // else the block extends an orphan chain
+    } else {
+      block.status = 'orphan';
     }
 
+    // update the blockchain and return a list of blocks orphaned in the process
     this.blocks.set(block.blockHash, block);
+    return orphanList;
   }
 
   getUTXOs(blockHash=this.head.blockHash){

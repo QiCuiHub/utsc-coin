@@ -49,7 +49,8 @@ if (process.argv.length < 3) {
     transactions : [transaction],
     prevHash     : '0',
     nonce        : 0,
-    height       : 0
+    height       : 0,
+    status       : 'main'
   });
 
   let blockchain = {

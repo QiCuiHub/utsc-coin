@@ -84,7 +84,7 @@ const block1 = new Block({
 
 // block2:
 //  mined by walletC
-//  wallet A sent 250 coins to walletB
+//  wallet A sent 250 coins to wallet B
 const block2 = new Block({
   transactions: [
     new Transaction({
@@ -128,7 +128,7 @@ const block2 = new Block({
 
 // block3:
 //  mined by walletC
-//  wallet B sent 750 coins to walletC
+//  wallet B sent 750 coins to wallet C
 const block3 = new Block({
   transactions: [
     new Transaction({
@@ -172,7 +172,7 @@ const block3 = new Block({
 
 // blockOrphan:
 //  mined by walletB
-//  wallet A sent 250 coins to walletB
+//  wallet A sent 250 coins to wallet B
 const blockOrphan = new Block({
   transactions: [
     new Transaction({
@@ -216,7 +216,7 @@ const blockOrphan = new Block({
 
 // blockCompete:
 //  mined by walletB
-//  wallet B sent 750 coins to walletC
+//  wallet B sent 750 coins to wallet C
 const blockCompete = new Block({
   transactions: [
     new Transaction({
@@ -258,20 +258,63 @@ const blockCompete = new Block({
   nonce: 0
 });
 
+// blockTransition
+// mined by wallet B
+// wallet C sends 750 coins to wallet A
+const blockTransition = new Block({
+  transactions: [
+    new Transaction({
+      input  : [],
+      output : [
+        {
+          address :  Object.keys(walletB)[0],
+          value   :  10
+        }
+      ],
+      publicKey : 'Random5',
+      signature : 'Data',
+      type      : 'coinbase'
+    }),
+    new Transaction({
+      input : [
+        {
+          txid : blockCompete.transactions[1].txid,
+          idx  : 0
+        }
+      ],
+      output : [
+        {
+          address : Object.keys(walletA)[0],
+          value   : 750
+        }
+      ],
+      publicKey : Object.keys(walletC)[0],
+      type      : 'transaction'
+    }, 
+    Object.values(walletC)[0])
+  ],
+  prevHash: blockCompete.blockHash,
+  height: 4,
+  nonce: 0
+});
+
+
+
 /*
   Malformed block
 */
 
 module.exports = {
-    walletA      : walletA,
-    walletB      : walletB,
-    walletC      : walletC,
-    blockGenesis : blockGenesis,
-    block1       : block1,
-    block2       : block2,
-    block3       : block3,
-    blockOrphan  : blockOrphan,
-    blockCompete : blockCompete
+    walletA         : walletA,
+    walletB         : walletB,
+    walletC         : walletC,
+    blockGenesis    : blockGenesis,
+    block1          : block1,
+    block2          : block2,
+    block3          : block3,
+    blockOrphan     : blockOrphan,
+    blockTransition : blockTransition,
+    blockCompete    : blockCompete
 }
 
 

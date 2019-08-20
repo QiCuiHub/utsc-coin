@@ -485,4 +485,79 @@ describe('Chain 2', function() {
         .toStrictEqual({address: Object.keys(testStructs.walletC)[0], value: 750});
     });
   });
+
+  describe('Verify transition block', function() {
+    
+    let TestMiner, verify;
+
+    beforeAll(() => { 
+      TestMiner = new Miner(
+        new Blockchain({blocks: [testStructs.blockGenesis]}),
+        null
+      );
+
+      TestMiner.addBlock(testStructs.block1);
+      TestMiner.addBlock(testStructs.block2);
+      TestMiner.addBlock(testStructs.block3);
+      TestMiner.addBlock(testStructs.blockOrphan);
+      TestMiner.addBlock(testStructs.blockCompete);
+
+      verify = TestMiner.verifyBlock(testStructs.blockTransition, true);
+    });
+
+    it('first block is coinbase', function() {
+      expect(verify[0]).toBe(true);
+    });
+
+    it('unique coinbase txid', function() {
+      expect(verify[1]).toBe(true);
+    });
+
+    it('valid transactions and no doublespend', function() {
+      expect(verify[2]).toBe(true);
+    });
+
+    it('less than or equal to 10 tx per block', function() {
+      expect(verify[3]).toBe(true);
+    });
+
+    it('merkle root matches', function() {
+      expect(verify[4]).toBe(true);
+    });
+
+    it('blockhash matches', function() {
+      expect(verify[5]).toBe(true);
+    });
+
+    it('coinbase reward is 10 coins', function() {
+      expect(verify[6]).toBe(true);
+    });
+  });
+
+  describe('Add transition block', function() {
+
+    let TestMiner;
+    
+    beforeAll(() => { 
+      TestMiner = new Miner(
+        new Blockchain({blocks: [testStructs.blockGenesis]}),
+        null
+      );
+
+      TestMiner.addBlock(testStructs.block1);
+      TestMiner.addBlock(testStructs.block2);
+      TestMiner.addBlock(testStructs.block3);
+      TestMiner.addBlock(testStructs.blockOrphan);
+      TestMiner.addBlock(testStructs.blockCompete);
+      TestMiner.addBlock(testStructs.blockTransition);
+    });
+
+    it('head updated correctly', function() {
+      expect(TestMiner.blockchain.head.blockHash)
+        .toBe(testStructs.blockTransition.blockHash);
+
+      expect(TestMiner.blockchain.head.prevHash)
+        .toBe(testStructs.blockCompete.blockHash);
+    });
+  });
 });
