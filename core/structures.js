@@ -170,7 +170,6 @@ class Blockchain {
 
     // update the blockchain and return a list of blocks orphaned in the process
     this.blocks.set(block.blockHash, block);
-    console.log(orphanList);
     return orphanList;
   }
 
