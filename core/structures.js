@@ -133,7 +133,8 @@ class Blockchain {
       if (block.prevHash !== this.head.blockHash){
 
         // mark the new chain as temp
-        let currHash = block.blockHash;
+        let currHash = block.prevHash;
+      
         while (currHash !== '0'){
           let currBlock = this.blocks.get(currHash);
           currBlock.status = 'temp';
@@ -144,23 +145,21 @@ class Blockchain {
         this.blocks.forEach((curr) => {
           if (curr.status === 'main'){
             orphanList.push(curr);
+            curr.status = 'orphan';
           }
         })
 
         // mark the new chain as the main chain
-        currHash = block.blockHash;
+        currHash = block.prevHash;
         while (currHash !== '0'){
           let currBlock = this.blocks.get(currHash);
           currBlock.status = 'main';
           currHash = currBlock.prevHash;
         }
-
-      // else mark as part of the main chain
-      } else {
-        block.status = 'main';
       }
 
       // update the head of the blockchain
+      block.status = 'main';
       this.head = block;
       this.head.height = height;
 
@@ -171,6 +170,7 @@ class Blockchain {
 
     // update the blockchain and return a list of blocks orphaned in the process
     this.blocks.set(block.blockHash, block);
+    console.log(orphanList);
     return orphanList;
   }
 
