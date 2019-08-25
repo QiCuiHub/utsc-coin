@@ -119,7 +119,7 @@ class Miner {
 
   addBlock(block){
     // add block to blockchain
-    this.blockchain.add(block);
+    let orphaned = this.blockchain.add(block);
 
     // remove transactions from staged transactions and update blockutxo
     block.transactions.forEach((tx, idx) => {
@@ -142,6 +142,8 @@ class Miner {
         this.blockUtxos[id] = curr;
       });
     });
+
+    return orphaned;
   }
 }
 

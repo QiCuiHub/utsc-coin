@@ -536,7 +536,7 @@ describe('Chain 2', function() {
 
   describe('Add transition block', function() {
 
-    let TestMiner;
+    let TestMiner, o1, o2, o3, o4, o5, o6;
     
     beforeAll(() => { 
       TestMiner = new Miner(
@@ -544,12 +544,12 @@ describe('Chain 2', function() {
         null
       );
 
-      TestMiner.addBlock(testStructs.block1);
-      TestMiner.addBlock(testStructs.block2);
-      TestMiner.addBlock(testStructs.block3);
-      TestMiner.addBlock(testStructs.blockOrphan);
-      TestMiner.addBlock(testStructs.blockCompete);
-      TestMiner.addBlock(testStructs.blockTransition);
+      o1 = TestMiner.addBlock(testStructs.block1);
+      o2 = TestMiner.addBlock(testStructs.block2);
+      o3 = TestMiner.addBlock(testStructs.block3);
+      o4 = TestMiner.addBlock(testStructs.blockOrphan);
+      o5 = TestMiner.addBlock(testStructs.blockCompete);
+      o6 = TestMiner.addBlock(testStructs.blockTransition);
     });
 
     it('head updated correctly', function() {
@@ -558,6 +558,21 @@ describe('Chain 2', function() {
 
       expect(TestMiner.blockchain.head.prevHash)
         .toBe(testStructs.blockCompete.blockHash);
+    });
+
+    it('found the correct orphaned blocks', function() {
+      expect(o1).toStrictEqual([]);
+      expect(o2).toStrictEqual([]);
+      expect(o3).toStrictEqual([]);
+      expect(o4).toStrictEqual([]);
+      expect(o5).toStrictEqual([]);
+
+      expect(o6[0].blockHash)
+        .toBe(testStructs.block2.blockHash);
+      
+      expect(o6[1].blockHash)
+        .toBe(testStructs.block3.blockHash);
+
     });
   });
 });
