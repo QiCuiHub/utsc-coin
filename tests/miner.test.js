@@ -574,5 +574,20 @@ describe('Chain 2', function() {
         .toBe(testStructs.block3.blockHash);
 
     });
+
+    it('transactions return to txpool', function() {
+      expect(o1).toStrictEqual([]);
+      expect(o2).toStrictEqual([]);
+      expect(o3).toStrictEqual([]);
+      expect(o4).toStrictEqual([]);
+      expect(o5).toStrictEqual([]);
+
+      expect(o6[0].blockHash)
+        .toBe(testStructs.block2.blockHash);
+      
+      expect(o6[1].blockHash)
+        .toBe(testStructs.block3.blockHash);
+
+    });
   });
 });

@@ -4,12 +4,12 @@ const ops = require('./operations.js');
 class Transaction {
   constructor(txJSON, privateKey=null) {
     // read transaction JSON
-    this.input  = txJSON.input;
-    this.output = txJSON.output;
+    this.input     = txJSON.input;
+    this.output    = txJSON.output;
     this.publicKey = txJSON.publicKey;
-    this.type = txJSON.type;
+    this.type      = txJSON.type;
     this.signature = txJSON.signature;
-    this.txid = txJSON.txid;
+    this.txid      = txJSON.txid;
 
     // automatically populate missing information
     if (!this.txid) this.txid = this.getID();
@@ -46,8 +46,10 @@ class Block {
     this.height       = blockJSON.height;
     this.nonce        = blockJSON.nonce;
     this.status       = blockJSON.status;
+    this.timestamp    = blockJSON.timestamp;
 
     // automatically populate missing information
+    if (!this.timestamp) this.timestamp = (new Date).getTime();
     if (!this.txRootHash) this.txRootHash = this.getMerkleRoot();
     if (!this.blockHash) this.blockHash = this.getBlockHash();
   }
@@ -64,6 +66,7 @@ class Block {
       .update(this.prevHash + '.', 'utf-8')
       .update(this.txRootHash + '.', 'utf-8')
       .update(this.nonce.toString() + '.', 'utf-8')
+      .update(this.timestamp.toString() + '.', 'utf-8')
       .digest('hex');
   }
 
@@ -103,7 +106,8 @@ class Block {
 class Blockchain {
   constructor(blockchainJSON){
     this.blocks = new Map();
-    this.head = null;
+    this.head   = null;
+
     this.parse(blockchainJSON.blocks);
   }
 
@@ -118,8 +122,6 @@ class Blockchain {
       }else this.add(block);
       
     });
-
-    return blocks;
   }
 
   add(block){

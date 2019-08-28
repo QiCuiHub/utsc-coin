@@ -121,6 +121,13 @@ class Miner {
     // add block to blockchain
     let orphaned = this.blockchain.add(block);
 
+    // return the transactions in orphaned blocks to the transaction pool
+    orphaned.forEach((block, idx) => {
+      block.transactions.forEach((tx, idx) => {
+        this.stageTX(tx);
+      });
+    });
+
     // remove transactions from staged transactions and update blockutxo
     block.transactions.forEach((tx, idx) => {
       // remove from pool
@@ -196,10 +203,19 @@ class ProofOfWorkMiner extends Miner{
     // if the block is valid return in a callback
     if (num < this.difficulty){
       callback(this.candidate)
-      
+ 
     // else increment the nonce
     }else {
       this.candidate.nonce += 1;
+    }
+  }
+
+  addBlock(block){
+    super.addBlock(block);
+    
+    // retarget difficulty every 10 blocks
+    if (this.blockchain.blocks.length % 10 === 0){
+
     }
   }
 

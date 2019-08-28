@@ -1,7 +1,10 @@
 10 transactions per block
 target of 1 block every 5 minutes
+recalculate difficulty every 10 blocks
+
 wait 1 second to connect to peers
 max of 50 miner to miner connections per node
 unlimited wallet connections
-integer values only, minimum transaction size of 1
+
+integer values only, minimum coin size of 1
 reward per block is 10 coins
