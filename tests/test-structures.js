@@ -34,7 +34,8 @@ const blockGenesis = new Block({
   ],
   prevHash   : '0',
   height     : 0,
-  nonce      : 0
+  nonce      : 0,
+  status     : 'main'
 });
 
 // block1:

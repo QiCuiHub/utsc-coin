@@ -161,11 +161,13 @@ class ProofOfAuthorityMiner extends Miner{
 }
 
 class ProofOfWorkMiner extends Miner{
-  constructor(blockchain, utxos, wallet){
+  constructor(blockchain, utxos, wallet, retargetLength, timePerBlock){
     super(blockchain, utxos); 
     this.wallet = wallet;
     this.difficulty = 4294967295;
     this.candidate = null;
+    this.retargetLength = retargetLength;
+    this.timePerBlock = timePerBlock; // in ms
     this.newCandidate();
   }
 
@@ -201,22 +203,30 @@ class ProofOfWorkMiner extends Miner{
     let num = buf.readUInt32BE(0);
 
     // if the block is valid return in a callback
-    if (num < this.difficulty){
-      callback(this.candidate)
- 
     // else increment the nonce
-    }else {
-      this.candidate.nonce += 1;
-    }
+    if (num < this.difficulty) callback(this.candidate)
+    else this.candidate.nonce += 1; 
   }
 
   addBlock(block){
-    super.addBlock(block);
+    let orphaned = super.addBlock(block);
     
-    // retarget difficulty every 10 blocks
-    if (this.blockchain.blocks.length % 10 === 0){
+    // retarget difficulty every n blocks
+    // calculate the average time taken to hash the past n blocks
+    if (this.blockchain.head.height % this.retargetLength === 0 && 
+        this.blockchain.head.blockHash === block.blockHash){
+      let blocks = this.blockchain.getBlocks(this.retargetLength);
 
+      let actualTime = blocks.reduce((acc, curr, idx) => {
+        if (blocks[idx + 1]) return acc + (blocks[idx].timestamp - blocks[idx + 1].timestamp);
+        else return acc; 
+      }, 0);
+
+      let targetTime  = this.retargetLength * this.timePerBlock;
+      this.difficulty = Math.floor(this.difficulty * (actualTime / targetTime));
     }
+
+    return orphaned;
   }
 
   startMining(interval, callback){

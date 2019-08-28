@@ -205,15 +205,19 @@ class Blockchain {
     return unspent;
   }
 
-  getBlocks(startHeight, endHeight){
-    /* startHeight < endHeight, startHeight >= 0 */
+  getBlocks(traversalLength=this.head.height + 1, startBlock=this.head){
+    /* return blocks from the blockchain, ordered from high to low height*/
 
     let out = [];
-    let currBlock = this.head;
+    let currBlock = startBlock;
 
-    while (currBlock.height > startHeight) {
+    // dont overflow
+    if (traversalLength > this.head.height + 1) traversalLength = this.head.height + 1;
+
+    // traverse towards root block
+    for (var i = 0; i < traversalLength; i++){
       out.push(currBlock);
-      currBlock = this.blocks.get(block.prevHash);
+      currBlock = this.blocks.get(currBlock.prevHash);
     }
 
     return out;
