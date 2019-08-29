@@ -21,7 +21,9 @@ const wlDB = lowdb(new FileSync('./wallet/keys.json'));
 const miner = new ProofOfWorkMiner(
   new Blockchain(bcDB.value()),
   null,
-  wlDB.get('keys').value()
+  wlDB.get('keys').value(),
+  10,
+  10000
 );
 
 swarm.join(topic, {
@@ -108,8 +110,7 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-miner.startMining(60000, (block) => {
-  console.log('numconn', connections.size);
+miner.startMining(100, (block) => {
   // broadcast block to every connection
   connections.forEach((socket) => {
     let output = {action: 'newMinedBlock', block: block};

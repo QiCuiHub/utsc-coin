@@ -121,6 +121,14 @@ class Miner {
     // add block to blockchain
     let orphaned = this.blockchain.add(block);
 
+    // rebuild blockUtxos on chain transition and update stageUtxos and spentUtxos
+    if (orphaned.length > 0) {
+      this.blockUtxos = this.blockchain.getUTXOs();
+      Object.keys(this.stageUtxos).forEach((curr) => {
+        if (curr in this.blockUtxos) delete this.stageUtxos[curr];
+      });
+    }
+
     // return the transactions in orphaned blocks to the transaction pool
     orphaned.forEach((block, idx) => {
       block.transactions.forEach((tx, idx) => {
@@ -183,8 +191,7 @@ class ProofOfWorkMiner extends Miner{
       publicKey : pub,
       type      : "coinbase"
     });
-
-    coinbase.txid = coinbase.getID();
+    
     coinbase.signature = crypto.randomBytes(64).toString('hex'); // random data
 
     // create candidate block
@@ -193,9 +200,6 @@ class ProofOfWorkMiner extends Miner{
       prevHash     : this.blockchain.getLastHash(),
       nonce        : 0
     });
-
-    this.candidate.txRootHash = this.candidate.getMerkleRoot();
-    this.candidate.blockHash = this.candidate.getBlockHash();
   }
 
   mine(callback) {
@@ -203,9 +207,15 @@ class ProofOfWorkMiner extends Miner{
     let num = buf.readUInt32BE(0);
 
     // if the block is valid return in a callback
-    // else increment the nonce
-    if (num < this.difficulty) callback(this.candidate)
-    else this.candidate.nonce += 1; 
+    // else increment the nonce and rehash
+    if (num < this.difficulty) {
+      callback(this.candidate);
+      this.addBlock(this.candidate);
+      this.newCandidate();
+    }else {
+      this.candidate.nonce += 1;
+      this.candidate.blockHash = this.candidate.getBlockHash();
+    }
   }
 
   addBlock(block){
