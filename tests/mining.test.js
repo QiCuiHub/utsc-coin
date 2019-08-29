@@ -23,6 +23,8 @@ describe('ProofOfWorkMiner', function() {
       o4 = TestMiner.addBlock(testStructs.blockOrphan);
       o5 = TestMiner.addBlock(testStructs.blockCompete);
       o6 = TestMiner.addBlock(testStructs.blockTransition);
+
+      console.log(TestMiner.blockUtxos);
     });
 
     it('difficulty adjusted', function() {
