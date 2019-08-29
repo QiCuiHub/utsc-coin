@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "nodemon -L core/server.js",
-    "run": "node core/server.js",
+    "start": "node core/server.js",
     "test": "jest --verbose ./tests"
   }
 }

@@ -4,7 +4,7 @@ var {Miner, ProofOfWorkMiner} = require('../core/miner.js')
 var testStructs = require('./test-structures.js');
 
 describe('ProofOfWorkMiner', function() {
-  describe('#mine()', function() {
+  describe('#addBlock()', function() {
 
     let TestMiner, o1, o2, o3, o4, o5, o6;
     
@@ -27,6 +27,12 @@ describe('ProofOfWorkMiner', function() {
 
     it('difficulty adjusted', function() {
       expect(TestMiner.difficulty).toBeLessThan(4294967295);
+      expect(TestMiner.difficulty).toBeGreaterThan(0);
     });
   });
+
+  describe('#mine', function() {
+
+  });
+
 });
