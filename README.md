@@ -1,4 +1,4 @@
--COIN
+# UTSC-COIN
 ## Running
 
 To start a mining node, use
@@ -50,7 +50,7 @@ UTXOs inside a miner are tracked by 3 different variables
   </tr>
 <tr>
   <td><code>stageUtxos</code></td>
-  <td>Keeps track of UTXOs that are not part of the blockchain <ul><li>UTXOs are added when a   valid transaction is registered </li><li>UTXOs are moved to `blockUtxos` when the transaction is incorporated into the blockchain</li><li>UTXOs are removed when a valid transaction consumes them</li></ul> </td>
+  <td>Keeps track of UTXOs that are not part of the blockchain <ul><li>UTXOs are added when a   valid transaction is registered </li><li>UTXOs are moved to <code>blockUtxos</code> when the transaction is incorporated into the blockchain</li><li>UTXOs are removed when a valid transaction consumes them</li></ul> </td>
 </tr>
 <tr>
   <td><code>spentUtxos</code></td>
