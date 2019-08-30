@@ -1,4 +1,4 @@
--COIN
+# UTSC-COIN
 ## Running
 
 To start a mining node, use
