@@ -5,14 +5,15 @@ const crypto = require('crypto');
 const lowdb = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
+require('dotenv').config();
+const MINING_INTERVAL = parseInt(process.env.MINING_INTERVAL);
+
 const swarm = hyperswarm();
 const connections = new Set();
 
 const topic = crypto.createHash('sha256')
   .update('utsc-miner-network')
   .digest();
-
-console.log(topic.toString('base64'));
 
 const bcDB = lowdb(new FileSync('./blockchain/blockchain.json'));
 const utDB = lowdb(new FileSync('./blockchain/utxo.json'));
@@ -21,9 +22,7 @@ const wlDB = lowdb(new FileSync('./wallet/keys.json'));
 const miner = new ProofOfWorkMiner(
   new Blockchain(bcDB.value()),
   null,
-  wlDB.get('keys').value(),
-  10,
-  10000
+  wlDB.get('keys').value()
 );
 
 swarm.join(topic, {
@@ -110,10 +109,12 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-miner.startMining(100, (block) => {
+miner.startMining(MINING_INTERVAL, (block) => {
   // broadcast block to every connection
   connections.forEach((socket) => {
     let output = {action: 'newMinedBlock', block: block};
     socket.write(JSON.stringify(output));
   });
 });
+
+console.log('Miner started');

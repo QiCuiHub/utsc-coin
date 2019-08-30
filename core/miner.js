@@ -2,13 +2,17 @@ const {Blockchain, Block, Transaction} = require('./structures.js');
 const ops = require('./operations.js');
 const crypto = require('crypto');
 
+require('dotenv').config();
+
 class Miner {
   constructor(blockchain, utxos){
     this.txPool = new Map();
-    this.blockchain = blockchain;
-    this.blockUtxos = this.blockchain.getUTXOs();
-    this.stageUtxos = {};
-    this.spentUtxos = {};
+    this.blockchain    = blockchain;
+    this.blockUtxos    = this.blockchain.getUTXOs();
+    this.stageUtxos    = {};
+    this.spentUtxos    = {};
+    this.TX_PER_BLOCK  = parseInt(process.env.TX_PER_BLOCK);
+    this.REWARD_AMOUNT = parseInt(process.env.REWARD_AMOUNT);
   }
 
   verifyTX(tx, blockUtxos=this.blockUtxos, stageUtxos=this.stageUtxos, 
@@ -93,13 +97,13 @@ class Miner {
     let checkHash = block.blockHash === block.getBlockHash();
 
     // max 10 tx per block
-    let checkTxLimit = block.transactions.length <= 10;
+    let checkTxLimit = block.transactions.length <= this.TX_PER_BLOCK;
 
     if (test) return [checkType, checkUniq, checkTx, checkTxLimit, 
-      checkRoot, checkHash, checkReward === 10];
+      checkRoot, checkHash, checkReward === this.REWARD_AMOUNT];
 
     return checkType && checkUniq && checkTx && checkTxLimit
-      && checkRoot && checkHash && checkReward === 10;
+      && checkRoot && checkHash && checkReward === this.REWARD_AMOUNT;
   }
 
   stageTX(tx, stageUtxos=this.stageUtxos, spentUtxos=this.spentUtxos, dryRun=false){
@@ -169,13 +173,13 @@ class ProofOfAuthorityMiner extends Miner{
 }
 
 class ProofOfWorkMiner extends Miner{
-  constructor(blockchain, utxos, wallet, retargetLength, timePerBlock){
+  constructor(blockchain, utxos, wallet){
     super(blockchain, utxos); 
-    this.wallet = wallet;
-    this.difficulty = 4294967295;
-    this.candidate = null;
-    this.retargetLength = retargetLength;
-    this.timePerBlock = timePerBlock; // in ms
+    this.wallet          = wallet;
+    this.difficulty      = 4294967295;
+    this.candidate       = null;
+    this.RETARGET_LENGTH = parseInt(process.env.RETARGET_LENGTH);
+    this.TIME_PER_BLOCK  = parseInt(process.env.TIME_PER_BLOCK);
     this.newCandidate();
   }
 
@@ -187,19 +191,26 @@ class ProofOfWorkMiner extends Miner{
     // coinbase transaction to self
     let coinbase = new Transaction({
       input     : [],
-      output    : [{address: pub, value: 10}],
+      output    : [{address: pub, value: this.REWARD_AMOUNT}],
       publicKey : pub,
       type      : "coinbase"
     });
     
     coinbase.signature = crypto.randomBytes(64).toString('hex'); // random data
-
+    
     // create candidate block
     this.candidate = new Block({
       transactions : [coinbase],
       prevHash     : this.blockchain.getLastHash(),
       nonce        : 0
     });
+
+    // take n transactions from the transaction pool and add them to the block
+    let pool = this.txPool.values();
+    let iter = Math.min(this.txPool.size, this.TX_PER_BLOCK);
+    for (var i = 0; i < iter; i++) {
+      this.candidate.transactions.push(pool.next().value);
+    }
   }
 
   mine(callback) {
@@ -223,16 +234,16 @@ class ProofOfWorkMiner extends Miner{
     
     // retarget difficulty every n blocks
     // calculate the average time taken to hash the past n blocks
-    if (this.blockchain.head.height % this.retargetLength === 0 && 
+    if (this.blockchain.head.height % this.RETARGET_LENGTH === 0 && 
         this.blockchain.head.blockHash === block.blockHash){
-      let blocks = this.blockchain.getBlocks(this.retargetLength);
+      let blocks = this.blockchain.getBlocks(this.RETARGET_LENGTH);
 
       let actualTime = blocks.reduce((acc, curr, idx) => {
         if (blocks[idx + 1]) return acc + (blocks[idx].timestamp - blocks[idx + 1].timestamp);
         else return acc; 
       }, 0);
 
-      let targetTime  = this.retargetLength * this.timePerBlock;
+      let targetTime  = this.RETARGET_LENGTH * this.TIME_PER_BLOCK;
       this.difficulty = Math.floor(this.difficulty * (actualTime / targetTime));
     }
 

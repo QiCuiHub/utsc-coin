@@ -1,6 +1,6 @@
 10 transactions per block
 target of 1 block every 5 minutes
-recalculate difficulty every 10 blocks
+recalculate difficulty every 3 blocks
 
 wait 1 second to connect to peers
 max of 50 miner to miner connections per node
