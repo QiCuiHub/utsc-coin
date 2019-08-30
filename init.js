@@ -4,6 +4,8 @@ const {Blockchain, Block, Transaction} = require('./core/structures.js');
 const ops = require('./core/operations.js');
 const program = require('commander');
 
+require('dotenv').config();
+const GENESIS_REWARD = parseInt(process.env.GENESIS_REWARD);
 
 program
   .option('-i, --init', 'Write new initial conditions')
@@ -38,7 +40,7 @@ if (process.argv.length < 3) {
   // create coinbase transaction
   let transaction = new Transaction({
     input     : [], 
-    output    : [{address: pub, value: 1000}],
+    output    : [{address: pub, value: GENESIS_REWARD}],
     signature : 'UTSC COIN',
     publicKey : 'IS THE BEST',
     type      : 'coinbase'

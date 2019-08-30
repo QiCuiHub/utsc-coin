@@ -7,4 +7,5 @@ max of 50 miner to miner connections per node
 unlimited wallet connections
 
 integer values only, minimum coin size of 1
-reward per block is 10 coins
+genesis block rewards 1000 coins
+reward per normal block is 10 coins
