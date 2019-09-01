@@ -36,53 +36,55 @@ swarm.on('connection', (socket, details) => {
 
   // attach listener to socket
   socket.on('data', (data) => {
-    let body = JSON.parse(data.toString());
-    //console.log(body);
+    let messages = data.toString().split('|');
 
-    switch (body.action){
+    for (var message in messages){
+      let body = JSON.parse(data.toString());
+      switch (body.action){
 
-      // if other node height is greater than stored height request for difference
-      case 'hello': {
-        if (body.height < miner.blockchain.getHeight()) break;
-        let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
-        socket.write(JSON.stringify(output));
-        break;
-      }
+        // if other node height is greater than stored height request for difference
+        case 'hello': {
+          if (body.height < miner.blockchain.getHeight()) break;
+          let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
+          socket.write(JSON.stringify(output));
+          break;
+        }
 
-      // received blocks from other node
-      case 'sendBlocks': {
-        body.blocks.forEach((curr) => {
-          let block = new Block(curr);
+        // received blocks from other node
+        case 'sendBlocks': {
+          body.blocks.forEach((curr) => {
+            let block = new Block(curr);
+            if (miner.verifyBlock(block)) miner.addBlock(block);
+          });
+          break;
+        }
+
+        // other node requested download for blocks
+        case 'requestBlocks': {
+          let blocks = miner.blockchain.getBlocks(body.height, miner.blockchain.getHeight());
+          let output = {action: 'sendBlocks', blocks: blocks};
+          socket.write(JSON.stringify(output));
+          break;
+        }
+
+        // test
+        case 'transact': {
+          let transaction = new Transaction(body.transaction);
+          if (miner.verifyTX(transaction)) miner.stageTX(transaction);
+          break;
+        }
+
+        case 'newMinedBlock': {
+          let block = new Block(body.block);
           if (miner.verifyBlock(block)) miner.addBlock(block);
-        });
-        break;
+        } 
+
+        // error
+        default: {
+          break;
+        }
+
       }
-
-      // other node requested download for blocks
-      case 'requestBlocks': {
-        let blocks = miner.blockchain.getBlocks(body.height, miner.blockchain.getHeight());
-        let output = {action: 'sendBlocks', blocks: blocks};
-        socket.write(JSON.stringify(output));
-        break;
-      }
-
-      // test
-      case 'transact': {
-        let transaction = new Transaction(body.transaction);
-        if (miner.verifyTX(transaction)) miner.stageTX(transaction);
-        break;
-      }
-
-      case 'newMinedBlock': {
-        let block = new Block(body.block);
-        if (miner.verifyBlock(block)) miner.addBlock(block);
-      } 
-
-      // error
-      default: {
-        break;
-      }
-
     }
   })
   .on('close', () => {
@@ -113,7 +115,7 @@ miner.startMining(MINING_INTERVAL, (block) => {
   // broadcast block to every connection
   connections.forEach((socket) => {
     let output = {action: 'newMinedBlock', block: block};
-    socket.write(JSON.stringify(output));
+    socket.write(JSON.stringify(output) + '|');
   });
 });
 
