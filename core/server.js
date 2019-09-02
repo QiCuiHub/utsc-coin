@@ -30,24 +30,42 @@ swarm.join(topic, {
   announce : true
 });
 
+const startMining = () => {
+  miner.startMining(MINING_INTERVAL, (block) => {
+    // broadcast block to every connection
+    connections.forEach((socket) => {
+      let output = {action: 'newMinedBlock', block: block};
+      socket.write(JSON.stringify(output) + '|');
+    });
+  });
+
+  console.log('Mining Started');
+}
+
 swarm.on('connection', (socket, details) => {
   /* establish connection to other nodes */
   connections.add(socket);
 
   // attach listener to socket
   socket.on('data', (data) => {
-    let messages = data.toString().split('|');
+    let messages = data.toString().split('|').slice(0, -1);
 
-    for (var message in messages){
-      let body = JSON.parse(data.toString());
+    for (var idx in messages){
+      let body = JSON.parse(messages[idx].toString());
       switch (body.action){
 
         // if other node height is greater than stored height request for difference
         case 'hello': {
-          if (body.height < miner.blockchain.getHeight()) break;
-          let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
-          socket.write(JSON.stringify(output));
-          break;
+          if (body.height <= miner.blockchain.getHeight()) {
+            console.log('Up to date');
+            startMining();
+            break;
+          } else {
+            console.log('Found blockchain of height ' + body.height, ', ours is ' + miner.blockchain.getHeight());
+            let output = {action: 'requestBlocks', height: miner.blockchain.getHeight()};
+            socket.write(JSON.stringify(output) + '|');
+            break;
+          }
         }
 
         // received blocks from other node
@@ -56,14 +74,16 @@ swarm.on('connection', (socket, details) => {
             let block = new Block(curr);
             if (miner.verifyBlock(block)) miner.addBlock(block);
           });
+
+          startMining();
           break;
         }
 
         // other node requested download for blocks
         case 'requestBlocks': {
-          let blocks = miner.blockchain.getBlocks(body.height, miner.blockchain.getHeight());
+          let blocks = miner.blockchain.getBlocks();
           let output = {action: 'sendBlocks', blocks: blocks};
-          socket.write(JSON.stringify(output));
+          socket.write(JSON.stringify(output) + '|');
           break;
         }
 
@@ -76,6 +96,7 @@ swarm.on('connection', (socket, details) => {
 
         case 'newMinedBlock': {
           let block = new Block(body.block);
+          console.log('newMinedBlock', block);
           if (miner.verifyBlock(block)) miner.addBlock(block);
         } 
 
@@ -96,8 +117,9 @@ swarm.on('connection', (socket, details) => {
   
   // send the height of stored blockchain to new incoming node
   if (details.client === false) {
+    console.log('Contacting network...');
     let output = {action: 'hello', height: miner.blockchain.getHeight()};
-    socket.write(JSON.stringify(output));
+    socket.write(JSON.stringify(output) + '|');
   }
 
 });
@@ -110,13 +132,3 @@ process.on('SIGINT', () => {
   swarm.leave(topic);
   process.exit(0);
 });
-
-miner.startMining(MINING_INTERVAL, (block) => {
-  // broadcast block to every connection
-  connections.forEach((socket) => {
-    let output = {action: 'newMinedBlock', block: block};
-    socket.write(JSON.stringify(output) + '|');
-  });
-});
-
-console.log('Miner started');

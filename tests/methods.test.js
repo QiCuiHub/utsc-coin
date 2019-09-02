@@ -30,7 +30,7 @@ describe('Miner', function() {
           testStructs.blockOrphan,
           testStructs.block1,
           testStructs.blockGenesis
-        ]);
+        ].reverse());
     });
   });
 });

@@ -79,6 +79,7 @@ class Miner {
     let spentTemp = {};
 
     // if attaching to head use this else generate utxos at attach point
+    //console.log(this.blockchain, block.prevHash);
     let blockUtxos = block.prevHash === this.blockchain.getLastHash() ? 
       this.blockUtxos : this.blockchain.getUTXOs(block.prevHash); 
 
@@ -195,7 +196,7 @@ class ProofOfWorkMiner extends Miner{
       publicKey : pub,
       type      : "coinbase"
     });
-    
+
     coinbase.signature = crypto.randomBytes(64).toString('hex'); // random data
     
     // create candidate block
@@ -239,7 +240,7 @@ class ProofOfWorkMiner extends Miner{
       let blocks = this.blockchain.getBlocks(this.RETARGET_LENGTH);
 
       let actualTime = blocks.reduce((acc, curr, idx) => {
-        if (blocks[idx + 1]) return acc + (blocks[idx].timestamp - blocks[idx + 1].timestamp);
+        if (blocks[idx + 1]) return acc + (blocks[idx + 1].timestamp - blocks[idx].timestamp);
         else return acc; 
       }, 0);
 

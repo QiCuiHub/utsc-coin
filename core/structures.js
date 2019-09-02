@@ -168,6 +168,7 @@ class Blockchain {
     // else the block extends an orphan chain
     } else {
       block.status = 'orphan';
+      block.height = height;
     }
 
     // update the blockchain and return a list of blocks orphaned in the process
@@ -185,6 +186,9 @@ class Blockchain {
     // traverse from specifed block to the genesis block
     while (currBlock !== '0'){
       let block = this.blocks.get(currBlock);
+
+      console.log(this.blocks);
+      console.log(currBlock);
 
       block.transactions.forEach((tx) => {
         // add the output utxos to unspent if not in spent
@@ -205,8 +209,10 @@ class Blockchain {
     return unspent;
   }
 
-  getBlocks(traversalLength=this.head.height + 1, startBlock=this.head){
-    /* return blocks from the blockchain, ordered from high to low height*/
+  getBlocks(traversalLength=this.head.height, startBlock=this.head){
+    /* return blocks from the blockchain, ordered from low to high height
+       don't get genesis block by default
+    */
 
     let out = [];
     let currBlock = startBlock;
@@ -220,7 +226,7 @@ class Blockchain {
       currBlock = this.blocks.get(currBlock.prevHash);
     }
 
-    return out;
+    return out.reverse();
   }
 
   getLastHash(){
