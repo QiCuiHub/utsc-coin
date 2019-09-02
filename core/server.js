@@ -96,7 +96,6 @@ swarm.on('connection', (socket, details) => {
 
         case 'newMinedBlock': {
           let block = new Block(body.block);
-          console.log('newMinedBlock', block);
           if (miner.verifyBlock(block)) miner.addBlock(block);
         } 
 

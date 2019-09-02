@@ -187,9 +187,6 @@ class Blockchain {
     while (currBlock !== '0'){
       let block = this.blocks.get(currBlock);
 
-      console.log(this.blocks);
-      console.log(currBlock);
-
       block.transactions.forEach((tx) => {
         // add the output utxos to unspent if not in spent
         tx.output.forEach((curr, idx) => {

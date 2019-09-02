@@ -79,7 +79,6 @@ class Miner {
     let spentTemp = {};
 
     // if attaching to head use this else generate utxos at attach point
-    //console.log(this.blockchain, block.prevHash);
     let blockUtxos = block.prevHash === this.blockchain.getLastHash() ? 
       this.blockUtxos : this.blockchain.getUTXOs(block.prevHash); 
 
@@ -181,7 +180,6 @@ class ProofOfWorkMiner extends Miner{
     this.candidate       = null;
     this.RETARGET_LENGTH = parseInt(process.env.RETARGET_LENGTH);
     this.TIME_PER_BLOCK  = parseInt(process.env.TIME_PER_BLOCK);
-    this.newCandidate();
   }
 
   newCandidate(){
@@ -193,11 +191,9 @@ class ProofOfWorkMiner extends Miner{
     let coinbase = new Transaction({
       input     : [],
       output    : [{address: pub, value: this.REWARD_AMOUNT}],
-      publicKey : pub,
+      publicKey : crypto.randomBytes(64).toString('hex'),
       type      : "coinbase"
     });
-
-    coinbase.signature = crypto.randomBytes(64).toString('hex'); // random data
     
     // create candidate block
     this.candidate = new Block({
@@ -252,6 +248,7 @@ class ProofOfWorkMiner extends Miner{
   }
 
   startMining(interval, callback){
+    this.newCandidate();
     setInterval(() => {this.mine(callback)}, interval);
   }
 }
