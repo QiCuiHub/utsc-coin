@@ -70,3 +70,7 @@ When there is a chain transition event,
  - `blockUtxos` is repopulated from the new primary chain
  - `stageUtxos` is cleared of UTXOs that are in `blockUtxos`, and transactions in orphaned blocks are added back
  - `spentUtxos` is cleared of UTXOs that are part of the new primary chain, and transactions in orphaned blocks are added 
+ 
+ ## Delimiters
+`|` is used to seperate network messages  
+`.` is used to seperate hash values
