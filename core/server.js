@@ -32,6 +32,8 @@ swarm.join(topic, {
 
 const startMining = () => {
   miner.startMining(MINING_INTERVAL, (block) => {
+    console.log('Height: ' + miner.blockchain.getHeight() + ', ' + 'Difficulty: ' + miner.difficulty);
+
     // broadcast block to every connection
     connections.forEach((socket) => {
       let output = {action: 'newMinedBlock', block: block};
