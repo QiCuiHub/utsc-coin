@@ -17,6 +17,8 @@ describe('ProofOfWorkMiner', function() {
         10
       );
 
+      TestMiner.RETARGET_LENGTH = 3;
+
       o1 = TestMiner.addBlock(testStructs.block1);
       o2 = TestMiner.addBlock(testStructs.block2);
       o3 = TestMiner.addBlock(testStructs.block3);
