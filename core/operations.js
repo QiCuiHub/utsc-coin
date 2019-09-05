@@ -46,8 +46,8 @@ verify = (content, signature, publicKey) => {
 
   }catch(err) {
 
-    if (err.code === 'ERR_OSSL_ASN1_HEADER_TOO_LONG')
-      return false;
+    if (err.code === 'ERR_OSSL_ASN1_HEADER_TOO_LONG') return false;
+    else if (err.code === 'ERR_OSSL_ASN1_TOO_LONG') return false;
     else throw err;
 
   }
