@@ -32,7 +32,7 @@ swarm.join(topic, {
 
 const startMining = () => {
   miner.startMining(MINING_INTERVAL, (block) => {
-    console.log('Height: ' + miner.blockchain.getHeight() + ', ' + 'Difficulty: ' + miner.difficulty);
+    console.log('Block mined with nonce ' + block.nonce + '\tHeight: ' + (miner.blockchain.getHeight() + 1) + '\tDifficulty: ' + miner.difficulty);
 
     // broadcast block to every connection
     connections.forEach((socket) => {
